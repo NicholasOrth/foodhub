@@ -5,9 +5,11 @@ import (
   "net/http"
   "os"
   "log"
+  "fmt"
 )
 
 func main() {
+  fmt.Println("Starting server")
   r := mux.NewRouter()
 
   http.Handle("/", r)
