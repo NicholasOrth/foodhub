@@ -3,6 +3,8 @@ package main
 import (
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
+	"gorm.io/gorm"
+  	"gorm.io/driver/sqlite"
 	"log"
 	"net/http"
 )
@@ -55,4 +57,26 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+	
+	
+
+	// Migrate the schema
+	db.AutoMigrate(&User{})
+
+	// Create
+	db.Create(&User{Name: "test", ID: 101, Email: "test@email.com", Password: "Password"})
+
+	// Read
+	var user User
+	db.First(&user, 1)                 // find product with integer primary key
+	db.First(&user, "code = ?", "D42") // find product with code D42
+
+	// Update - update product's email to x
+	db.Model(&user).Update("Email", "new@email.com")
+	// Update - update multiple fields
+
+	// Delete - delete product
+	db.Delete(&user, 1)
+	
+	
 }
