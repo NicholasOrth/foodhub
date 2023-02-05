@@ -9,3 +9,4 @@ As a user I want to be able to upload images along with text on my posts
 
 As a user I want to be able to block users so that they cant see my activity 
 
+As a user I want to be able to log into an account
