@@ -16,10 +16,6 @@ type User struct {
 	Password string `json:"password"`
 }
 
-func createUser(user User) {
-	log.Println(user)
-}
-
 func main() {
 	log.Println("Starting server...")
 
@@ -60,7 +56,12 @@ func main() {
 			return
 		}
 
-		createUser(user)
+		res := db.Create(&user)
+		if res.Error != nil {
+			log.Println(res.Error)
+		}
+		log.Println("User created. Rows affected ", res.RowsAffected)
+
 		c.Header("Content-Type", "application/json")
 		c.JSON(http.StatusOK, user)
 	})

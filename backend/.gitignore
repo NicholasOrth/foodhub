@@ -4,4 +4,6 @@
 main.exe
 main
 
+*.db
+
 .idea/
