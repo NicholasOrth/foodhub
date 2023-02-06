@@ -2,5 +2,6 @@
 .env.*
 
 main.exe
+main
 
 .idea/
