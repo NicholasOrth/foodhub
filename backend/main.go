@@ -3,6 +3,8 @@ package main
 import (
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
+	"gorm.io/driver/sqlite"
+	"gorm.io/gorm"
 	"log"
 	"net/http"
 )
@@ -21,6 +23,18 @@ func createUser(user User) {
 func main() {
 	log.Println("Starting server...")
 
+	// db connection
+	db, err := gorm.Open(sqlite.Open("test.db"), &gorm.Config{})
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	err = db.AutoMigrate(&User{})
+	if err != nil {
+		log.Println(err)
+	}
+
+	// gin web server
 	router := gin.Default()
 
 	router.Use(cors.New(cors.Config{
@@ -51,7 +65,7 @@ func main() {
 		c.JSON(http.StatusOK, user)
 	})
 
-	err := router.Run(":8080")
+	err = router.Run(":8080")
 	if err != nil {
 		log.Fatal(err)
 	}
