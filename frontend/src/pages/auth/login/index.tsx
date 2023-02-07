@@ -3,23 +3,30 @@ import React, {useState} from "react"
 import Router from "next/router"
 
 export default function Login() {
-    const[email, setEmail] = useState('');
-    const[password,setPassword] = useState('');
-
     const handleSubmit = (e: any)=>{
         e.preventDefault();
-        console.log(email);
+
+        const data = {
+            email: e.target.email.value,
+            password: e.target.password.value,
+        };
     }
 
     return(
         <div className="authform">
          <form onSubmit={handleSubmit}>
             <label htmlFor="email">email</label>
-            <input value={email} onChange={(e) => setEmail(e.target.value)} type ="text" placeholder="email@whatevermail.com" id="email" name="email"/>
-            <label htmlFor="password">email</label>
-            <input value={password} onChange={(e) => setPassword(e.target.value)} type="passsword" placeholder="**********" id="password" name="name"/>
+            <input type="text" placeholder="email@whatevermail.com" id="email" name="email"/>
+             <br />
+
+            <label htmlFor="password">password</label>
+            <input type="passsword" placeholder="**********" id="password" name="name"/>
+             <br/>
+
             <button> Log In</button>
          </form>
+
+        <br/>
 
          <button onClick={
              () => Router.push("/auth/signup")}
