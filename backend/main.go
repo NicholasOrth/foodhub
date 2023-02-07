@@ -2,7 +2,6 @@ package main
 
 import (
 	"github.com/gin-contrib/cors"
-	"github.com/gin-gonic/contrib/static"
 	"github.com/gin-gonic/gin"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
@@ -41,8 +40,6 @@ func main() {
 		AllowCredentials: true,
 		AllowWildcard:    true,
 	}))
-
-	router.Use(static.Serve("/", static.LocalFile("../frontend/dist", true)))
 
 	router.GET("/ping", func(c *gin.Context) {
 		c.IndentedJSON(http.StatusOK, gin.H{"message": "pong"})
