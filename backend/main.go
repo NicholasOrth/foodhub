@@ -18,6 +18,36 @@ type User struct {
 	Password string `json:"password"`
 }
 
+// function for hashing user info
+func hasher(user User) User {
+	//hashing user info
+	hashedUser := User{}
+	name := []byte(user.Name)
+	hashedName, err := bcrypt.GenerateFromPassword(name, bcrypt.DefaultCost)
+	if err != nil {
+		panic(err)
+	}
+
+	//hash password
+	pass := []byte(user.Password)
+
+	hashedPass, err := bcrypt.GenerateFromPassword(pass, bcrypt.DefaultCost)
+	if err != nil {
+		panic(err)
+	}
+
+	//hash email
+	email := []byte(user.Email)
+	hashedEmail, err := bcrypt.GenerateFromPassword(email, bcrypt.DefaultCost)
+	if err != nil {
+		panic(err)
+	}
+	hashedUser.Name = string(hashedName)
+	hashedUser.Email = string(hashedEmail)
+	hashedUser.Password = string(hashedPass)
+	return hashedUser
+}
+
 func main() {
 	log.Println("Starting server...")
 
@@ -60,28 +90,9 @@ func main() {
 			return
 		}
 		//hashing user info
-		name := []byte(user.Name)
-		hashedName, err := bcrypt.GenerateFromPassword(name, bcrypt.DefaultCost)
-		if err != nil {
-			panic(err)
-		}
+		hashedUser := hasher(user)
 
-		//hash password
-		pass := []byte(user.Password)
-
-		hashedPass, err := bcrypt.GenerateFromPassword(pass, bcrypt.DefaultCost)
-		if err != nil {
-			panic(err)
-		}
-
-		//hash email
-		email := []byte(user.Email)
-		hashedEmail, err := bcrypt.GenerateFromPassword(email, bcrypt.DefaultCost)
-		if err != nil {
-			panic(err)
-		}
-
-		res := db.Create(&user)
+		res := db.Create(&hashedUser)
 		if res.Error != nil {
 			log.Println(res.Error)
 		}
