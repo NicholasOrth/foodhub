@@ -10,6 +10,7 @@ export default function Login() {
         e.preventDefault();
         console.log(email);
     }
+
     return(
         <div className="authform">
          <form onSubmit={handleSubmit}>

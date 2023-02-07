@@ -1,29 +1,59 @@
-import React, {useState} from "react"
-
 import Router from "next/router"
 
 export default function Register() {
-    const[email, setEmail] = useState('');
-    const[password,setPassword] = useState('');
-    const[name, setName]= useState('');
 
-    const handleSubmit = (e: any)=>{
+    const handleSubmit = async (e: any) => {
         e.preventDefault();
-        console.log(email);
+
+        const data = {
+            name: e.target.name.value,
+            email: e.target.email.value,
+            password: e.target.password.value,
+        };
+
+        if (data.password !== e.target.confirm.value) {
+            alert("Passwords do not match");
+            return
+        }
+
+        const res: Response = await fetch("http://localhost:8080/user", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(data),
+        });
+
+        if (res.status === 200) {
+            await Router.push("/auth/login");
+        }
     }
 
     return(
         <div className="authform">
             <form onSubmit={handleSubmit}>
                 <label htmlFor="name">Full Name</label>
-                <input value ={name} name="name" id="name" placeholder="Full Name"/>
+                <input type="text" id="name" name="name" placeholder="Full Name"/>
+                <br />
+
                 <label htmlFor="email">email</label>
-                <input value={email} onChange={(e) => setEmail(e.target.value)} type="text" placeholder="email@whatevermail.com" id="email" name="email"/>
-                <label htmlFor="password">email</label>
-                <input value={password} onChange={(e) => setPassword(e.target.value)} type="passsword" placeholder="**********" id="password" name="name"/>
+                <input type="text" id="email" name="email" placeholder="email@whatevermail.com" />
+                <br />
+
+                <label htmlFor="password">password</label>
+                <input type="password" id="password" name="password" placeholder="**********" />
+                <br />
+
+                <label htmlFor="confirm">confirm password</label>
+                <input type="password" id="confirm" name="confirm" placeholder="**********" />
+                <br />
+
                 <button type="submit">Log In</button>
             </form>
-            <button onClick={() => Router.push("/auth/login")}> Already have an account? Login here. </button>
+            <br />
+            <button onClick={() => Router.push("/auth/login")}>
+                Already have an account? Login here.
+            </button>
         </div>
     )
 }
