@@ -1,12 +1,14 @@
 package main
 
 import (
-	"github.com/gin-contrib/cors"
-	"github.com/gin-gonic/gin"
-	"gorm.io/driver/sqlite"
-	"gorm.io/gorm"
 	"log"
 	"net/http"
+
+	"github.com/gin-contrib/cors"
+	"github.com/gin-gonic/gin"
+	"golang.org/x/crypto/bcrypt"
+	"gorm.io/driver/sqlite"
+	"gorm.io/gorm"
 )
 
 type User struct {
@@ -50,10 +52,33 @@ func main() {
 	})
 
 	router.POST("/user", func(c *gin.Context) {
+		//path the user struct name, email, and password extract and run thru bcrypt and store hashed info in db
+		//
 		var user User
 		if err := c.ShouldBindJSON(&user); err != nil {
 			c.AbortWithStatus(http.StatusInternalServerError)
 			return
+		}
+		//hashing user info
+		name := []byte(user.Name)
+		hashedName, err := bcrypt.GenerateFromPassword(name, bcrypt.DefaultCost)
+		if err != nil {
+			panic(err)
+		}
+
+		//hash password
+		pass := []byte(user.Password)
+
+		hashedPass, err := bcrypt.GenerateFromPassword(pass, bcrypt.DefaultCost)
+		if err != nil {
+			panic(err)
+		}
+
+		//hash email
+		email := []byte(user.Email)
+		hashedEmail, err := bcrypt.GenerateFromPassword(email, bcrypt.DefaultCost)
+		if err != nil {
+			panic(err)
 		}
 
 		res := db.Create(&user)
