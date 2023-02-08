@@ -20,3 +20,6 @@ We've completed a simple log in and account creation page.  In addition the user
 
 
 While we've completed our goals for sprint 1, we still have much to do in order to have a running product.  We have yet to move to other issues as we focused on getting accustomed to Go and React 
+
+demo videos
+backend: https://drive.google.com/file/d/17N5pRaflpABASqBC7Y8RaBiHWzrLnnZ8/view?usp=share_link
