@@ -23,3 +23,5 @@ While we've completed our goals for sprint 1, we still have much to do in order 
 
 demo videos
 backend: https://drive.google.com/file/d/17N5pRaflpABASqBC7Y8RaBiHWzrLnnZ8/view?usp=share_link
+
+frontend: https://drive.google.com/file/d/1pjP_GLtIUummIY3xwhrQ5t64GWp3tzzS/view?usp=sharing
