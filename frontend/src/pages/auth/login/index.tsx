@@ -1,4 +1,5 @@
 import React, {useState} from "react"
+import styles from "../../../styles/Login.module.css"
 
 import Router from "next/router"
 
@@ -13,7 +14,7 @@ export default function Login() {
     }
 
     return(
-        <div className="authform">
+        <div className={styles.authform}>
          <form onSubmit={handleSubmit}>
             <label htmlFor="email">email</label>
             <input type="text" placeholder="email@whatevermail.com" id="email" name="email"/>
