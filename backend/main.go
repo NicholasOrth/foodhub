@@ -18,6 +18,17 @@ type User struct {
 	Password string `json:"password"`
 }
 
+func HashStr(data string) string {
+	hashedData, err :=
+		bcrypt.GenerateFromPassword([]byte(data), bcrypt.DefaultCost)
+	if err != nil {
+		log.Println("Failed to hash string.")
+		return ""
+	}
+
+	return string(hashedData)
+}
+
 // function for hashing user info
 func hashUser(user *User) {
 	// hash name
@@ -92,12 +103,16 @@ func main() {
 			return
 		}
 
-		hashUser(&user)
+		res := db.Create(&User{
+			Name:     user.Name,
+			Email:    user.Email,
+			Password: HashStr(user.Password),
+		})
 
-		res := db.Create(&user)
 		if res.Error != nil {
 			log.Println(res.Error)
 		}
+
 		log.Println("User created. Rows affected ", res.RowsAffected)
 		log.Println(user)
 
