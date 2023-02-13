@@ -64,7 +64,37 @@ func main() {
 
 	})
 
-	router.POST("/user", func(c *gin.Context) {
+	router.GET("/auth/login", func(c *gin.Context) {
+		var data struct {
+			Email    string `json:"email"`
+			Password string `json:"password"`
+		}
+
+		if err := c.ShouldBindJSON(&data); err != nil {
+			c.AbortWithStatus(http.StatusBadRequest)
+			return
+		}
+
+		var query User
+		res := db.Where("email = ?", data.Email).First(&query)
+		if res.Error != nil {
+			log.Println(res.Error)
+			c.AbortWithStatus(http.StatusInternalServerError)
+			return
+		}
+
+		if query.Password != data.Password {
+			c.AbortWithStatus(http.StatusUnauthorized)
+			return
+		}
+
+		c.Header("Content-Type", "application/json")
+		c.JSON(http.StatusOK, gin.H{
+			"message": "authenticated",
+		})
+	})
+
+	router.POST("/auth/signup", func(c *gin.Context) {
 		/*
 			path the user struct name, email, and password extract
 			and run thru bcrypt and store hashed info in db
