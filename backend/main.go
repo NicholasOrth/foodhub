@@ -77,13 +77,16 @@ func main() {
 
 		var query User
 		res := db.Where("email = ?", data.Email).First(&query)
+
 		if res.Error != nil {
 			log.Println(res.Error)
 			c.AbortWithStatus(http.StatusInternalServerError)
 			return
 		}
 
-		if query.Password != data.Password {
+		err := bcrypt.CompareHashAndPassword([]byte(query.Password), []byte(data.Password))
+		if err != nil {
+			log.Println(err)
 			c.AbortWithStatus(http.StatusUnauthorized)
 			return
 		}
