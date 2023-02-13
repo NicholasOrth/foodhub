@@ -1,13 +1,15 @@
-import React, { useEffect} from 'react';
+import React from 'react';
+
 import Router from "next/router"
 
-export default function home() {
-  useEffect(() => {
-    document.title = "FoodHub";
-  }, []);
+import Head from "next/head"
 
+export default function home() {
   return (
       <>
+        <Head>
+          <title>FoodHub</title>
+        </Head>
         <div>
           <br />
           <p> FoodHub </p>

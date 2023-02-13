@@ -1,4 +1,4 @@
-import React, {useState} from "react"
+import React from "react"
 import styles from "../../../styles/Login.module.css"
 
 import Router from "next/router"
@@ -11,6 +11,8 @@ export default function Login() {
             email: e.target.email.value,
             password: e.target.password.value,
         };
+
+        console.log(data);
     }
 
     return(

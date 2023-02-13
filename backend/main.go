@@ -19,33 +19,33 @@ type User struct {
 }
 
 // function for hashing user info
-func hasher(user User) User {
-	//hashing user info
-	hashedUser := User{}
-	name := []byte(user.Name)
-	hashedName, err := bcrypt.GenerateFromPassword(name, bcrypt.DefaultCost)
+func hashUser(user *User) {
+	// hash name
+	hashedName, err :=
+		bcrypt.GenerateFromPassword([]byte(user.Name), bcrypt.DefaultCost)
 	if err != nil {
-		panic(err)
-	}
-
-	//hash password
-	pass := []byte(user.Password)
-
-	hashedPass, err := bcrypt.GenerateFromPassword(pass, bcrypt.DefaultCost)
-	if err != nil {
-		panic(err)
+		log.Println("Failed to hash user struct.")
+		return
 	}
 
 	//hash email
-	email := []byte(user.Email)
-	hashedEmail, err := bcrypt.GenerateFromPassword(email, bcrypt.DefaultCost)
+	hashedEmail, err :=
+		bcrypt.GenerateFromPassword([]byte(user.Email), bcrypt.DefaultCost)
 	if err != nil {
-		panic(err)
+		log.Println("Failed to hash user struct.")
+		return
 	}
-	hashedUser.Name = string(hashedName)
-	hashedUser.Email = string(hashedEmail)
-	hashedUser.Password = string(hashedPass)
-	return hashedUser
+
+	hashedPass, err :=
+		bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
+	if err != nil {
+		log.Println("Failed to hash user struct.")
+		return
+	}
+
+	user.Name = string(hashedName)
+	user.Email = string(hashedEmail)
+	user.Password = string(hashedPass)
 }
 
 func main() {
@@ -82,24 +82,27 @@ func main() {
 	})
 
 	router.POST("/user", func(c *gin.Context) {
-		//path the user struct name, email, and password extract and run thru bcrypt and store hashed info in db
-		//
+		/*
+			path the user struct name, email, and password extract
+			and run thru bcrypt and store hashed info in db
+		*/
 		var user User
 		if err := c.ShouldBindJSON(&user); err != nil {
 			c.AbortWithStatus(http.StatusInternalServerError)
 			return
 		}
-		//hashing user info
-		hashedUser := hasher(user)
 
-		res := db.Create(&hashedUser)
+		hashUser(&user)
+
+		res := db.Create(&user)
 		if res.Error != nil {
 			log.Println(res.Error)
 		}
 		log.Println("User created. Rows affected ", res.RowsAffected)
+		log.Println(user)
 
 		c.Header("Content-Type", "application/json")
-		c.JSON(http.StatusOK, user)
+		c.JSON(http.StatusOK, nil)
 	})
 
 	err = router.Run(":8080")
