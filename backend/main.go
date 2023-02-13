@@ -85,7 +85,9 @@ func main() {
 	}))
 
 	router.GET("/ping", func(c *gin.Context) {
-		c.IndentedJSON(http.StatusOK, gin.H{"message": "pong"})
+		c.IndentedJSON(http.StatusOK, gin.H{
+			"message": "pong",
+		})
 	})
 
 	router.GET("/user/:id", func(c *gin.Context) {
@@ -120,7 +122,7 @@ func main() {
 		c.JSON(http.StatusOK, nil)
 	})
 
-	err = router.Run(":8080")
+	err = router.Run(":7100")
 	if err != nil {
 		log.Fatal(err)
 	}
