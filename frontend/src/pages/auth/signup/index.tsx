@@ -16,7 +16,7 @@ export default function Register() {
             return
         }
 
-        const res: Response = await fetch("http://localhost:8080/user", {
+        const res: Response = await fetch("http://localhost:7100/user", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
