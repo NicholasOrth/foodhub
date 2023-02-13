@@ -16,7 +16,7 @@ export default function Register() {
             return
         }
 
-        const res: Response = await fetch("http://localhost:7100/user", {
+        const res: Response = await fetch("http://localhost:7100/auth/signup", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
