@@ -29,36 +29,6 @@ func HashStr(data string) string {
 	return string(hashedData)
 }
 
-// function for hashing user info
-func hashUser(user *User) {
-	// hash name
-	hashedName, err :=
-		bcrypt.GenerateFromPassword([]byte(user.Name), bcrypt.DefaultCost)
-	if err != nil {
-		log.Println("Failed to hash user struct.")
-		return
-	}
-
-	//hash email
-	hashedEmail, err :=
-		bcrypt.GenerateFromPassword([]byte(user.Email), bcrypt.DefaultCost)
-	if err != nil {
-		log.Println("Failed to hash user struct.")
-		return
-	}
-
-	hashedPass, err :=
-		bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
-	if err != nil {
-		log.Println("Failed to hash user struct.")
-		return
-	}
-
-	user.Name = string(hashedName)
-	user.Email = string(hashedEmail)
-	user.Password = string(hashedPass)
-}
-
 func main() {
 	log.Println("Starting server...")
 
