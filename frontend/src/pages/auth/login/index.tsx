@@ -4,7 +4,7 @@ import styles from "../../../styles/Login.module.css"
 import Router from "next/router"
 
 export default function Login() {
-    const handleSubmit = (e: any)=>{
+    const handleSubmit = async (e: any)=> {
         e.preventDefault();
 
         const data = {
@@ -12,7 +12,24 @@ export default function Login() {
             password: e.target.password.value,
         };
 
-        console.log(data);
+        try {
+            const res: Response = await fetch("http://localhost:7100/auth/login", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(data),
+            });
+
+            const json = await res.json();
+
+            alert(json.message);
+            await Router.push("/");
+        } catch (e: any) {
+            alert(e);
+            Router.reload();
+        }
+
     }
 
     return(
@@ -23,7 +40,7 @@ export default function Login() {
              <br />
 
             <label htmlFor="password">password</label>
-            <input type="passsword" placeholder="**********" id="password" name="name"/>
+            <input type="password" placeholder="**********" id="password" name="password"/>
              <br/>
 
             <button> Log In</button>

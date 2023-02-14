@@ -64,7 +64,7 @@ func main() {
 
 	})
 
-	router.GET("/auth/login", func(c *gin.Context) {
+	router.POST("/auth/login", func(c *gin.Context) {
 		var data struct {
 			Email    string `json:"email"`
 			Password string `json:"password"`
