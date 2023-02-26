@@ -27,7 +27,6 @@ export default function Login() {
             console.log(e);
             Router.reload();
         }
-
     }
 
     return(
