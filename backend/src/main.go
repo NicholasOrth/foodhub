@@ -7,7 +7,6 @@ import (
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
-	"strconv"
 	"time"
 
 	"log"
@@ -79,8 +78,8 @@ func main() {
 		})
 	})
 
-	router.GET("/user/:id", func(c *gin.Context) {
-		cookie, err := c.Cookie("token")
+	router.GET("/user", func(c *gin.Context) {
+		cookie, err := c.Cookie("jwt")
 		if err != nil {
 			c.AbortWithStatus(http.StatusUnauthorized)
 			return
@@ -98,20 +97,19 @@ func main() {
 			return
 		}
 
-		id, err := strconv.Atoi(c.Param("id"))
-		if err != nil {
-			c.AbortWithStatus(http.StatusBadRequest)
+		var user User
+		res := db.First(&user, claims.ID)
+
+		if res.Error != nil {
+			c.AbortWithStatus(http.StatusInternalServerError)
 			return
 		}
 
-		if claims.ID == id {
-			c.IndentedJSON(http.StatusOK, gin.H{
-				"message": "welcome!",
-			})
-		} else {
-			c.AbortWithStatus(http.StatusUnauthorized)
-			return
-		}
+		c.Header("Content-Type", "application/json")
+		c.JSON(http.StatusOK, gin.H{
+			"email": user.Email,
+			"name":  user.Name,
+		})
 	})
 
 	router.POST("/auth/login", func(c *gin.Context) {
@@ -161,7 +159,7 @@ func main() {
 
 		c.Header("Content-Type", "application/json")
 		c.SetCookie(
-			"token",
+			"jwt",
 			tokenString,
 			3600,
 			"/",
@@ -176,7 +174,7 @@ func main() {
 	router.POST("/auth/signup", func(c *gin.Context) {
 		/*
 			path the user struct name, email, and password extract
-			and run thru bcrypt and store hashed info in db
+			and run through bcrypt and store hashed info in db
 		*/
 		var user User
 		if err := c.ShouldBindJSON(&user); err != nil {
