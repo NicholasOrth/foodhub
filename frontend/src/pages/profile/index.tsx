@@ -1,6 +1,8 @@
 import {GetServerSidePropsContext} from "next";
 
-export default function Profile(props: {data: {email: string, name: string}}) {
+export default function Profile(
+    props: {data: {email: string, name: string}})
+{
     return (
         <div>
             <h1>Profile</h1>

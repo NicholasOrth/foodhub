@@ -1,4 +1,4 @@
-.env*
+.env
 .env.*
 
 main.exe
@@ -8,3 +8,5 @@ main
 *.sqlite
 
 .idea/
+
+images/*

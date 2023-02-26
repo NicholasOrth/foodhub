@@ -4,23 +4,30 @@ import (
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt"
+	"github.com/joho/godotenv"
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
+	"os"
+	"path/filepath"
+	"strconv"
 	"time"
 
 	"log"
 	"net/http"
 )
 
-// TODO: IMPORTANT!!!! MOVE TO ENV VAR!!!! THIS IS A SECRET KEY!!!!!
-var jwtKey = []byte("tYHPYFGOGowamQOscrbxdeRQB8WWCFXt")
-
 type User struct {
 	ID       int    `json:"id"`
 	Name     string `json:"name"`
 	Email    string `json:"email"`
 	Password string `json:"password"`
+}
+
+type Post struct {
+	ID      int    `json:"id"`
+	Caption string `json:"caption"`
+	ImgPath string `json:"imgPath"`
 }
 
 type Credentials struct {
@@ -48,7 +55,13 @@ func HashStr(data string) string {
 
 func main() {
 	log.Println("Starting server...")
-	log.Println(jwtKey)
+
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatalln("Error loading .env file")
+	}
+
+	jwtKey := []byte(os.Getenv("JWT_KEY"))
 
 	// db connection
 	db, err := gorm.Open(sqlite.Open("test.sqlite"), &gorm.Config{})
@@ -56,7 +69,7 @@ func main() {
 		log.Fatalln(err)
 	}
 
-	err = db.AutoMigrate(&User{})
+	err = db.AutoMigrate(&User{}, &Post{})
 	if err != nil {
 		log.Println(err)
 	}
@@ -196,6 +209,80 @@ func main() {
 
 		c.Header("Content-Type", "application/json")
 		c.JSON(http.StatusOK, nil)
+	})
+
+	router.POST("/image/upload", func(c *gin.Context) {
+		cookie, err := c.Cookie("jwt")
+		if err != nil {
+			c.AbortWithStatus(http.StatusUnauthorized)
+			return
+		}
+
+		claims := &Claims{}
+
+		token, err := jwt.ParseWithClaims(cookie, claims,
+			func(token *jwt.Token) (interface{}, error) {
+				return jwtKey, nil
+			})
+
+		if err != nil || !token.Valid {
+			c.AbortWithStatus(http.StatusUnauthorized)
+			return
+		}
+
+		var user User
+		res := db.First(&user, claims.ID)
+
+		if res.Error != nil {
+			c.AbortWithStatus(http.StatusInternalServerError)
+			return
+		}
+
+		caption := c.PostForm("caption")
+
+		file, err := c.FormFile("file")
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"message": err.Error(),
+			})
+			return
+		}
+
+		filename := filepath.Base(file.Filename)
+		path := "images/user/" + strconv.Itoa(user.ID) + "/"
+
+		err = os.MkdirAll(path, os.ModePerm)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"message": err.Error(),
+			})
+			return
+		}
+
+		err = c.SaveUploadedFile(file, path+filename)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"message": err.Error(),
+			})
+			return
+		}
+
+		res = db.Create(&Post{
+			Caption: caption,
+			ImgPath: path,
+		})
+
+		if res.Error != nil {
+			log.Println(res.Error)
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"message": err.Error(),
+			})
+			return
+		}
+
+		c.JSON(http.StatusOK, gin.H{
+			"message": "success",
+		})
 	})
 
 	err = router.Run(":7100")
