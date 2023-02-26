@@ -1,21 +1,39 @@
 package main
 
 import (
-	"log"
-	"net/http"
-
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
+	"github.com/golang-jwt/jwt"
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
+	"strconv"
+	"time"
+
+	"log"
+	"net/http"
 )
+
+// TODO: IMPORTANT!!!! MOVE TO ENV VAR!!!! THIS IS A SECRET KEY!!!!!
+var jwtKey = []byte("tYHPYFGOGowamQOscrbxdeRQB8WWCFXt")
 
 type User struct {
 	ID       int    `json:"id"`
 	Name     string `json:"name"`
 	Email    string `json:"email"`
 	Password string `json:"password"`
+}
+
+type Credentials struct {
+	Email    string `json:"email"`
+	Password string `json:"password"`
+}
+
+type Claims struct {
+	ID    int    `json:"id"`
+	Name  string `json:"name"`
+	Email string `json:"email"`
+	jwt.StandardClaims
 }
 
 func HashStr(data string) string {
@@ -31,9 +49,10 @@ func HashStr(data string) string {
 
 func main() {
 	log.Println("Starting server...")
+	log.Println(jwtKey)
 
 	// db connection
-	db, err := gorm.Open(sqlite.Open("test.db"), &gorm.Config{})
+	db, err := gorm.Open(sqlite.Open("test.sqlite"), &gorm.Config{})
 	if err != nil {
 		log.Fatalln(err)
 	}
@@ -47,7 +66,7 @@ func main() {
 	router := gin.Default()
 
 	router.Use(cors.New(cors.Config{
-		AllowAllOrigins:  true,
+		AllowOrigins:     []string{"http://localhost:3000"},
 		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE"},
 		AllowHeaders:     []string{"Origin", "Content-Type"},
 		AllowCredentials: true,
@@ -61,22 +80,52 @@ func main() {
 	})
 
 	router.GET("/user/:id", func(c *gin.Context) {
-
-	})
-
-	router.POST("/auth/login", func(c *gin.Context) {
-		var data struct {
-			Email    string `json:"email"`
-			Password string `json:"password"`
+		cookie, err := c.Cookie("token")
+		if err != nil {
+			c.AbortWithStatus(http.StatusUnauthorized)
+			return
 		}
 
-		if err := c.ShouldBindJSON(&data); err != nil {
+		claims := &Claims{}
+
+		token, err := jwt.ParseWithClaims(cookie, claims,
+			func(token *jwt.Token) (interface{}, error) {
+				return jwtKey, nil
+			})
+
+		if err != nil || !token.Valid {
+			c.AbortWithStatus(http.StatusUnauthorized)
+			return
+		}
+
+		id, err := strconv.Atoi(c.Param("id"))
+		if err != nil {
 			c.AbortWithStatus(http.StatusBadRequest)
 			return
 		}
 
+		if claims.ID == id {
+			c.IndentedJSON(http.StatusOK, gin.H{
+				"message": "welcome!",
+			})
+		} else {
+			c.AbortWithStatus(http.StatusUnauthorized)
+			return
+		}
+	})
+
+	router.POST("/auth/login", func(c *gin.Context) {
+		var creds Credentials
+
+		// Get the JSON body and decode into credentials
+		if err := c.ShouldBindJSON(&creds); err != nil {
+			c.AbortWithStatus(http.StatusBadRequest)
+			return
+		}
+
+		// Get the user details from the database
 		var query User
-		res := db.Where("email = ?", data.Email).First(&query)
+		res := db.Where("email = ?", creds.Email).First(&query)
 
 		if res.Error != nil {
 			log.Println(res.Error)
@@ -84,16 +133,43 @@ func main() {
 			return
 		}
 
-		err := bcrypt.CompareHashAndPassword([]byte(query.Password), []byte(data.Password))
+		// Compare the stored hashed password, with the hashed version of the password that was received
+		err := bcrypt.CompareHashAndPassword([]byte(query.Password), []byte(creds.Password))
 		if err != nil {
-			log.Println(err)
 			c.AbortWithStatus(http.StatusUnauthorized)
 			return
 		}
 
+		// If authentication is successful, generate a token
+		expiration := time.Now().Add(time.Hour).Unix()
+
+		claims := &Claims{
+			ID:    query.ID,
+			Name:  query.Name,
+			Email: query.Email,
+			StandardClaims: jwt.StandardClaims{
+				ExpiresAt: expiration,
+			},
+		}
+
+		token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+		tokenString, err := token.SignedString(jwtKey)
+		if err != nil {
+			c.AbortWithStatus(http.StatusInternalServerError)
+			return
+		}
+
 		c.Header("Content-Type", "application/json")
+		c.SetCookie(
+			"token",
+			tokenString,
+			3600,
+			"/",
+			"localhost",
+			false,
+			true)
 		c.JSON(http.StatusOK, gin.H{
-			"message": "authenticated",
+			"message": "success",
 		})
 	})
 
@@ -119,7 +195,6 @@ func main() {
 		}
 
 		log.Println("User created. Rows affected ", res.RowsAffected)
-		log.Println(user)
 
 		c.Header("Content-Type", "application/json")
 		c.JSON(http.StatusOK, nil)

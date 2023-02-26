@@ -13,20 +13,18 @@ export default function Login() {
         };
 
         try {
-            const res: Response = await fetch("http://localhost:7100/auth/login", {
+            await fetch("http://localhost:7100/auth/login", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
                 },
+                credentials: "include",
                 body: JSON.stringify(data),
             });
 
-            const json = await res.json();
-
-            alert(json.message);
             await Router.push("/");
         } catch (e: any) {
-            alert(e);
+            console.log(e);
             Router.reload();
         }
 
