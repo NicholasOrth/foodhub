@@ -18,16 +18,20 @@ import (
 )
 
 type User struct {
-	ID       int    `json:"id"`
+	gorm.Model
 	Name     string `json:"name"`
 	Email    string `json:"email"`
 	Password string `json:"password"`
+
+	Posts []Post `json:"posts" gorm:"foreignKey:UserID"`
 }
 
 type Post struct {
-	ID      int    `json:"id"`
+	gorm.Model
 	Caption string `json:"caption"`
 	ImgPath string `json:"imgPath"`
+
+	UserID uint `json:"userId"`
 }
 
 type Credentials struct {
@@ -84,6 +88,8 @@ func main() {
 		AllowCredentials: true,
 		AllowWildcard:    true,
 	}))
+
+	router.Static("/images", "./images")
 
 	router.GET("/ping", func(c *gin.Context) {
 		c.IndentedJSON(http.StatusOK, gin.H{
@@ -155,7 +161,7 @@ func main() {
 		expiration := time.Now().Add(time.Hour).Unix()
 
 		claims := &Claims{
-			ID:    query.ID,
+			ID:    int(query.ID),
 			Name:  query.Name,
 			Email: query.Email,
 			StandardClaims: jwt.StandardClaims{
@@ -249,7 +255,7 @@ func main() {
 		}
 
 		filename := filepath.Base(file.Filename)
-		path := "images/user/" + strconv.Itoa(user.ID) + "/"
+		path := "images/user/" + strconv.Itoa(int(user.ID)) + "/"
 
 		err = os.MkdirAll(path, os.ModePerm)
 		if err != nil {
