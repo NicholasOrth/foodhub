@@ -1,6 +1,11 @@
 package main
 
 import (
+	"os"
+	"path/filepath"
+	"strconv"
+	"time"
+
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt"
@@ -8,10 +13,6 @@ import (
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
-	"os"
-	"path/filepath"
-	"strconv"
-	"time"
 
 	"log"
 	"net/http"
@@ -40,7 +41,7 @@ type Credentials struct {
 }
 
 type Claims struct {
-	ID    int    `json:"id"`
+	ID    uint   `json:"id"`
 	Name  string `json:"name"`
 	Email string `json:"email"`
 	jwt.StandardClaims
@@ -57,6 +58,38 @@ func HashStr(data string) string {
 	return string(hashedData)
 }
 
+func AuthUser(c *gin.Context, db *gorm.DB) (User, Claims, error) {
+	cookie, err := c.Cookie("jwt")
+	if err != nil {
+		c.AbortWithStatus(http.StatusUnauthorized)
+		return User{}, Claims{}, err
+	}
+
+	var claims Claims
+
+	token, err := jwt.ParseWithClaims(cookie, claims,
+		func(token *jwt.Token) (interface{}, error) {
+			return jwtKey, nil
+		})
+
+	if err != nil || !token.Valid {
+		c.AbortWithStatus(http.StatusUnauthorized)
+		return User{}, Claims{}, err
+	}
+
+	var user User
+	res := db.First(&user, claims.ID)
+
+	if res.Error != nil {
+		c.AbortWithStatus(http.StatusInternalServerError)
+		return User{}, Claims{}, err
+	}
+
+	return user, claims, nil
+}
+
+var jwtKey = []byte(os.Getenv("JWT_KEY"))
+
 func main() {
 	log.Println("Starting server...")
 
@@ -64,8 +97,6 @@ func main() {
 	if err != nil {
 		log.Fatalln("Error loading .env file")
 	}
-
-	jwtKey := []byte(os.Getenv("JWT_KEY"))
 
 	// db connection
 	db, err := gorm.Open(sqlite.Open("test.sqlite"), &gorm.Config{})
@@ -89,8 +120,6 @@ func main() {
 		AllowWildcard:    true,
 	}))
 
-	router.Static("/images", "./images")
-
 	router.GET("/ping", func(c *gin.Context) {
 		c.IndentedJSON(http.StatusOK, gin.H{
 			"message": "pong",
@@ -98,33 +127,10 @@ func main() {
 	})
 
 	router.GET("/user", func(c *gin.Context) {
-		cookie, err := c.Cookie("jwt")
-		if err != nil {
-			c.AbortWithStatus(http.StatusUnauthorized)
-			return
-		}
-
-		claims := &Claims{}
-
-		token, err := jwt.ParseWithClaims(cookie, claims,
-			func(token *jwt.Token) (interface{}, error) {
-				return jwtKey, nil
-			})
-
-		if err != nil || !token.Valid {
-			c.AbortWithStatus(http.StatusUnauthorized)
-			return
-		}
-
-		var user User
-		res := db.First(&user, claims.ID)
-
-		if res.Error != nil {
-			c.AbortWithStatus(http.StatusInternalServerError)
-			return
-		}
+		user, _, err := AuthUser(c, db)
 
 		var posts []Post
+
 		err = db.Model(&user).Association("Posts").Find(&posts)
 		if err != nil {
 			c.AbortWithStatus(http.StatusInternalServerError)
@@ -169,7 +175,7 @@ func main() {
 		expiration := time.Now().Add(time.Hour).Unix()
 
 		claims := &Claims{
-			ID:    int(query.ID),
+			ID:    query.ID,
 			Name:  query.Name,
 			Email: query.Email,
 			StandardClaims: jwt.StandardClaims{
@@ -226,31 +232,7 @@ func main() {
 	})
 
 	router.POST("/image/upload", func(c *gin.Context) {
-		cookie, err := c.Cookie("jwt")
-		if err != nil {
-			c.AbortWithStatus(http.StatusUnauthorized)
-			return
-		}
-
-		claims := &Claims{}
-
-		token, err := jwt.ParseWithClaims(cookie, claims,
-			func(token *jwt.Token) (interface{}, error) {
-				return jwtKey, nil
-			})
-
-		if err != nil || !token.Valid {
-			c.AbortWithStatus(http.StatusUnauthorized)
-			return
-		}
-
-		var user User
-		res := db.First(&user, claims.ID)
-
-		if res.Error != nil {
-			c.AbortWithStatus(http.StatusInternalServerError)
-			return
-		}
+		user, _, err := AuthUser(c, db)
 
 		caption := c.PostForm("caption")
 
@@ -285,7 +267,6 @@ func main() {
 			Caption: caption,
 			ImgPath: path + filename,
 		})
-
 		if err != nil {
 			c.AbortWithStatus(http.StatusInternalServerError)
 			return
