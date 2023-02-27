@@ -1,13 +1,30 @@
 import {GetServerSidePropsContext} from "next";
 
+import Image from "next/image";
+
 export default function Profile(
-    props: {data: {email: string, name: string}})
+    props: {data: {email: string, name: string, posts: any[]}})
 {
     return (
         <div>
             <h1>Profile</h1>
             <p>{props.data.name}</p>
             <p>{props.data.email}</p>
+            {
+                props.data.posts.map((post: any) => {
+                    return (
+                        <div key={post.ID}>
+                            <p>{post.caption}</p>
+                            <Image
+                                src={"http://localhost:7100/" + post.imgPath}
+                                alt={"Missing Post Image"}
+                                width={100}
+                                height={100}
+                            />
+                        </div>
+                    )
+                })
+            }
         </div>
     )
 }
@@ -33,14 +50,11 @@ export async function getServerSideProps(ctx: GetServerSidePropsContext) {
         credentials: 'include',
     })
 
-    const data: {email: string, name: string} = await res.json();
+    const data: {email: string, name: string, posts: any[]} = await res.json();
 
     return {
         props: {
-            data: {
-                email: data.email,
-                name: data.name,
-            }
+            data
         }
     }
 }

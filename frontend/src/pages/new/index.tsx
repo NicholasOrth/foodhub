@@ -9,7 +9,7 @@ export default function New() {
 
         const formData = new FormData()
         formData.append('file', e.target.file.files[0])
-        formData.append('caption', 'test')
+        formData.append('caption', e.target.caption.value)
 
         const jwt = cookies.get('jwt');
 
@@ -23,12 +23,11 @@ export default function New() {
                 credentials: 'include'
             })
 
-            const data = res.json()
-            data.then((data: any) => {
-                console.log(data);
-            }).catch((err: any) => {
-                console.log("");
-            })
+            const data = await res.json()
+
+            if (res.ok) {
+                console.log(data)
+            }
         } catch (err) {
             console.log(err)
         }
@@ -36,7 +35,14 @@ export default function New() {
 
     return (
         <form onSubmit={handleSubmit} encType="multipart/form-data">
+            <label htmlFor="caption">Caption</label>
+            <input type="text" id="caption" />
+            <br />
+
+            <label htmlFor="file">File</label>
             <input type="file" id="file" />
+            <br />
+
             <button type="submit">Submit</button>
         </form>
     )

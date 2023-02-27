@@ -124,10 +124,18 @@ func main() {
 			return
 		}
 
+		var posts []Post
+		err = db.Model(&user).Association("Posts").Find(&posts)
+		if err != nil {
+			c.AbortWithStatus(http.StatusInternalServerError)
+			return
+		}
+
 		c.Header("Content-Type", "application/json")
 		c.JSON(http.StatusOK, gin.H{
 			"email": user.Email,
 			"name":  user.Name,
+			"posts": posts,
 		})
 	})
 
@@ -273,16 +281,13 @@ func main() {
 			return
 		}
 
-		res = db.Create(&Post{
+		err = db.Model(&user).Association("Posts").Append(&Post{
 			Caption: caption,
-			ImgPath: path,
+			ImgPath: path + filename,
 		})
 
-		if res.Error != nil {
-			log.Println(res.Error)
-			c.JSON(http.StatusInternalServerError, gin.H{
-				"message": err.Error(),
-			})
+		if err != nil {
+			c.AbortWithStatus(http.StatusInternalServerError)
 			return
 		}
 
