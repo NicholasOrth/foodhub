@@ -2,6 +2,7 @@ import React from "react"
 import styles from "../../../styles/Login.module.css"
 
 import Router from "next/router"
+import {GetServerSidePropsContext} from "next";
 
 export default function Login() {
     const handleSubmit = async (e: any)=> {
@@ -22,7 +23,7 @@ export default function Login() {
                 body: JSON.stringify(data),
             });
 
-            await Router.push("/");
+            await Router.push("/profile");
         } catch (e: any) {
             console.log(e);
             Router.reload();
@@ -53,5 +54,21 @@ export default function Login() {
 
         </div>
     )
-   
-} 
+}
+
+export async function getServerSideProps(ctx: GetServerSidePropsContext) {
+    const jwt = ctx.req.cookies.jwt;
+
+    if (jwt) {
+        return {
+            redirect: {
+                destination: "/profile",
+                permanent: false,
+            }
+        }
+    }
+
+    return {
+        props: {}
+    }
+}

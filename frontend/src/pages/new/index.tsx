@@ -1,5 +1,7 @@
 
 import Cookies from "universal-cookie";
+import {GetServerSidePropsContext} from "next";
+import Router from "next/router";
 
 const cookies = new Cookies();
 
@@ -26,7 +28,7 @@ export default function New() {
             const data = await res.json()
 
             if (res.ok) {
-                console.log(data)
+                await Router.push('/profile')
             }
         } catch (err) {
             console.log(err)
@@ -46,4 +48,21 @@ export default function New() {
             <button type="submit">Submit</button>
         </form>
     )
+}
+
+export async function getServerSideProps(ctx: GetServerSidePropsContext) {
+    const jwt = ctx.req.cookies.jwt;
+
+    if (!jwt) {
+        return {
+            redirect: {
+                destination: "/auth/login",
+                permanent: false,
+            }
+        }
+    }
+
+    return {
+        props: {}
+    }
 }
