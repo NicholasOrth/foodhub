@@ -1,6 +1,7 @@
 import {GetServerSidePropsContext} from "next";
 
 import Image from "next/image";
+import Router from "next/router";
 
 export default function Profile(
     props: {data: {email: string, name: string, posts: any[]}})
@@ -25,6 +26,9 @@ export default function Profile(
                     )
                 })
             }
+            <button onClick={() => Router.push("/new")}>
+                Create New Post
+            </button>
         </div>
     )
 }
