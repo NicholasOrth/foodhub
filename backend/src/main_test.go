@@ -12,6 +12,5 @@ func TestHashStr(t *testing.T) {
 	err := bcrypt.CompareHashAndPassword([]byte(hashed), []byte(passwordTest))
 	if err != nil {
 		t.Errorf("Hashed password does not match")
-
 	}
 }
