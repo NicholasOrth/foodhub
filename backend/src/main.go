@@ -23,6 +23,8 @@ type User struct {
 	Name     string `json:"name"`
 	Email    string `json:"email"`
 	Password string `json:"password"`
+	Following []uint `json:"following"`
+	Followers []uint `json:"followers"`
 
 	Posts []Post `json:"posts" gorm:"foreignKey:UserID"`
 }
@@ -46,6 +48,14 @@ type Claims struct {
 	Email string `json:"email"`
 	jwt.StandardClaims
 }
+func AddFollower(user User, target User)  {
+	// TODO add friend to user, and add follower to friend
+	user.Following = append(user.Following, target.ID) 	
+	target.Followers = append(target.Followers, user.ID)
+}
+
+// TODO: add remove follower function
+
 
 func HashStr(data string) string {
 	hashedData, err :=
