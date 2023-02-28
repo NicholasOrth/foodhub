@@ -37,6 +37,24 @@ func TestAddFollower(t *testing.T) {
 	}
 }
 
+// Test for contains function
+func TestContains(t *testing.T) {
+	slice := []uint{1, 2, 3, 4, 5}
+	val := uint(3)
+	if !Contains(slice, val) {
+		t.Errorf("Contains function does not work")
+	}
+}
+
+func TestRemoveFromSlice(t *testing.T) {
+	slice := []uint{1, 2, 3, 4, 5}
+	val := uint(3)
+	slice = RemoveFromSlice(slice, val)
+	if Contains(slice, val) {
+		t.Errorf("RemoveFromSlice function does not work")
+	}
+}
+
 // handeler for testing GET request
 func getUsersHandler(w http.ResponseWriter, r *http.Request) {
 	// retrieve list of users from database
@@ -81,6 +99,7 @@ func TestGetUsers(t *testing.T) {
 
 var users []User
 
+// handeler for testing POST request
 func createUserHandler(w http.ResponseWriter, r *http.Request) {
 	// decode JSON request body into User object
 	var user User
@@ -98,6 +117,7 @@ func createUserHandler(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(user)
 }
 
+// test POST for creation of users
 func TestCreateUser(t *testing.T) {
 	// create test server with createUserHandler as handler for /users endpoint
 	server := httptest.NewServer(http.HandlerFunc(createUserHandler))
