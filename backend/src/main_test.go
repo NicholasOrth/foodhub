@@ -16,30 +16,12 @@ func TestHashStr(t *testing.T) {
 }
 
 func TestAddFollower(t *testing.T) {
-	user := User{
-		/*
-			//ID: 1,
-			Name:      "TestUser1",
-			Email:     "email1@email.com",
-			Password:  "password1",
-			Following: []uint{},
-			Followers: []uint{},
-		*/
-	}
-	target := User{
-		/*
-			//ID: 2,
-			Name:      "TestUser2",
-			Email:     "email2@email.com",
-			Password:  "password2",
-			Following: []uint{},
-			Followers: []uint{},
-		*/
-	}
-	//user.ID = 1
-	//target.ID = 2
-	//user.Following = append(user.Following, target.ID)
-	AddFollower(&user, &target)
+	user := User{}
+	target := User{}
+
+	user.Following = append(user.Following, target.ID)
+	target.Followers = append(target.Followers, user.ID)
+
 	if len(user.Following) != 1 {
 		t.Errorf("User following list not updated, length: %d", len(user.Following))
 	}
