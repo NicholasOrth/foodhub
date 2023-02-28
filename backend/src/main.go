@@ -56,7 +56,25 @@ type Claims struct {
 //}
 
 // TODO: add remove follower function
+func Contains(slice []uint, val uint) bool {
+	for _, item := range slice {
+		if item == val {
+			return true
+		}
+	}
+	return false
+}
 
+func RemoveFromSlice(slice []uint, val uint) []uint {
+	// iterate over the slice and copy all elements except u to a new slice
+	var result []uint
+	for _, i := range slice {
+		if i != val {
+			result = append(result, i)
+		}
+	}
+	return result
+}
 func HashStr(data string) string {
 	hashedData, err :=
 		bcrypt.GenerateFromPassword([]byte(data), bcrypt.DefaultCost)
