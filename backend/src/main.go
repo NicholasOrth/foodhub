@@ -23,8 +23,8 @@ type User struct {
 	Name     string `json:"name"`
 	Email    string `json:"email"`
 	Password string `json:"password"`
-	Following []uint `json:"following"`
-	Followers []uint `json:"followers"`
+	//Following []uint `json:"following"`
+	//Followers []uint `json:"followers"`
 
 	Posts []Post `json:"posts" gorm:"foreignKey:UserID"`
 }
@@ -48,14 +48,14 @@ type Claims struct {
 	Email string `json:"email"`
 	jwt.StandardClaims
 }
-func AddFollower(user User, target User)  {
-	// TODO add friend to user, and add follower to friend
-	user.Following = append(user.Following, target.ID) 	
-	target.Followers = append(target.Followers, user.ID)
-}
+
+//func AddFollower(user User, target User) {
+//	// TODO add friend to user, and add follower to friend
+//	user.Following = append(user.Following, target.ID)
+//	target.Followers = append(target.Followers, user.ID)
+//}
 
 // TODO: add remove follower function
-
 
 func HashStr(data string) string {
 	hashedData, err :=
@@ -71,11 +71,12 @@ func HashStr(data string) string {
 func AuthUser(c *gin.Context, db *gorm.DB) (User, Claims, error) {
 	cookie, err := c.Cookie("jwt")
 	if err != nil {
+		log.Println("No cookie found.")
 		c.AbortWithStatus(http.StatusUnauthorized)
 		return User{}, Claims{}, err
 	}
 
-	var claims Claims
+	claims := &Claims{}
 
 	token, err := jwt.ParseWithClaims(cookie, claims,
 		func(token *jwt.Token) (interface{}, error) {
@@ -83,6 +84,7 @@ func AuthUser(c *gin.Context, db *gorm.DB) (User, Claims, error) {
 		})
 
 	if err != nil || !token.Valid {
+		log.Println("Invalid token.")
 		c.AbortWithStatus(http.StatusUnauthorized)
 		return User{}, Claims{}, err
 	}
@@ -91,11 +93,12 @@ func AuthUser(c *gin.Context, db *gorm.DB) (User, Claims, error) {
 	res := db.First(&user, claims.ID)
 
 	if res.Error != nil {
+		log.Println(res.Error)
 		c.AbortWithStatus(http.StatusInternalServerError)
-		return User{}, Claims{}, err
+		return User{}, Claims{}, res.Error
 	}
 
-	return user, claims, nil
+	return user, *claims, nil
 }
 
 var jwtKey = []byte(os.Getenv("JWT_KEY"))
@@ -130,6 +133,8 @@ func main() {
 		AllowWildcard:    true,
 	}))
 
+	router.Static("/images", "./images")
+
 	router.GET("/ping", func(c *gin.Context) {
 		c.IndentedJSON(http.StatusOK, gin.H{
 			"message": "pong",
@@ -138,6 +143,9 @@ func main() {
 
 	router.GET("/user", func(c *gin.Context) {
 		user, _, err := AuthUser(c, db)
+		if err != nil {
+			return
+		}
 
 		var posts []Post
 
