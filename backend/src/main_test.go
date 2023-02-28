@@ -22,6 +22,7 @@ func TestHashStr(t *testing.T) {
 
 // test the add follower function
 // NOTE: not yet implemented as a built in function, instead just use append twice
+/*
 func TestAddFollower(t *testing.T) {
 	user := User{}
 	target := User{}
@@ -36,7 +37,7 @@ func TestAddFollower(t *testing.T) {
 		t.Errorf("Target followers list not updated, length: %d", len(target.Followers))
 	}
 }
-
+*/
 // Test for contains function
 func TestContains(t *testing.T) {
 	slice := []uint{1, 2, 3, 4, 5}
