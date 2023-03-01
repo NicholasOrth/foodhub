@@ -23,8 +23,8 @@ type User struct {
 	Name     string `json:"name"`
 	Email    string `json:"email"`
 	Password string `json:"password"`
-	//Following []uint `json:"following"`
-	//Followers []uint `json:"followers"`
+
+	Following []uint `json:"following" gorm:"type:integer[]"`
 
 	Posts []Post `json:"posts" gorm:"foreignKey:UserID"`
 }
@@ -49,11 +49,9 @@ type Claims struct {
 	jwt.StandardClaims
 }
 
-//func AddFollower(user User, target User) {
-//	// TODO add friend to user, and add follower to friend
-//	user.Following = append(user.Following, target.ID)
-//	target.Followers = append(target.Followers, user.ID)
-//}
+func AddFollower(user User, target User) {
+	user.Following = append(user.Following, target.ID)
+}
 
 // TODO: add remove follower function
 func Contains(slice []uint, val uint) bool {
@@ -311,6 +309,10 @@ func main() {
 		c.JSON(http.StatusOK, gin.H{
 			"message": "success",
 		})
+	})
+
+	router.POST("/follow", func(c *gin.Context) {
+
 	})
 
 	err = router.Run(":7100")
