@@ -15,3 +15,7 @@ Test Remove From Slice: tests the RemoveFromSlice function which is used to remo
 Test Get Users:  tests GET calls for retrieving users from the DB
 Test CreateUsers:  tests POST calls for creation of new users
 
+
+Frontend tests:
+Test that the site pages are up and running
+Tests button clicks on pages and ensures connectivity
