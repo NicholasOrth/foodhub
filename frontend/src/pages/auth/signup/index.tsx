@@ -1,5 +1,7 @@
 import Router from "next/router"
 
+import styles from "../../../styles/Signup.module.css"
+
 export default function Register() {
 
     const handleSubmit = async (e: any) => {
@@ -30,27 +32,33 @@ export default function Register() {
     }
 
     return(
-        <div className="authform">
+        <div className={styles.signupForm}>
+            <h1>Sign Up</h1>
+
             <form onSubmit={handleSubmit}>
-                <label htmlFor="name">Full Name</label>
-                <input type="text" id="name" name="name" placeholder="Full Name"/>
-                <br />
+                <label>
+                   name
+                    <input type="text" id="name" name="name" placeholder="name"/>
+                </label>
 
-                <label htmlFor="email">email</label>
-                <input type="text" id="email" name="email" placeholder="email@whatevermail.com" />
-                <br />
+                <label>
+                    email
+                    <input type="text" id="email" name="email" placeholder="email@website.com" />
+                </label>
 
-                <label htmlFor="password">password</label>
-                <input type="password" id="password" name="password" placeholder="**********" />
-                <br />
+                <label>
+                    password
+                    <input type="password" id="password" name="password" placeholder="**********" />
+                </label>
 
-                <label htmlFor="confirm">confirm password</label>
-                <input type="password" id="confirm" name="confirm" placeholder="**********" />
-                <br />
+                <label>
+                    confirm password
+                    <input type="password" id="confirm" name="confirm" placeholder="**********" />
+                </label>
 
                 <button type="submit">Log In</button>
             </form>
-            <br />
+
             <button onClick={() => Router.push("/auth/login")}>
                 Already have an account? Login here.
             </button>

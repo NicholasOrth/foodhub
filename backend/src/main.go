@@ -52,8 +52,6 @@ type Claims struct {
 func AddFollower(user User, target User) {
 	user.Following = append(user.Following, target.ID)
 }
-
-// TODO: add remove follower function
 func Contains(slice []uint, val uint) bool {
 	for _, item := range slice {
 		if item == val {
