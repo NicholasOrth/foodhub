@@ -1,31 +1,26 @@
 import {GetServerSidePropsContext} from "next";
 
-import Image from "next/image";
 import Router from "next/router";
+
+import PostDisplay from "../../../components/PostDisplay";
+
+import styles from "../../styles/Profile.module.css";
 
 export default function Profile(
     props: {data: {email: string, name: string, posts: any[]}})
 {
     return (
-        <div>
-            <h1>Profile</h1>
-            <p>{props.data.name}</p>
-            <p>{props.data.email}</p>
-            {
-                props.data.posts.map((post: any) => {
-                    return (
-                        <div key={post.ID}>
-                            <p>{post.caption}</p>
-                            <Image
-                                src={"http://localhost:7100/" + post.imgPath}
-                                alt={"Missing Post Image"}
-                                width={100}
-                                height={100}
-                            />
-                        </div>
-                    )
-                })
-            }
+        <div className={styles.profileContainer}>
+            <h1>{props.data.name}</h1>
+            <div className={styles.postsContainer}>
+                {
+                    props.data.posts.map((post: any) => {
+                        return (
+                            <PostDisplay post={post} key={post._id} />
+                        )
+                    })
+                }
+            </div>
             <button onClick={() => Router.push("/new")}>
                 Create New Post
             </button>

@@ -33,6 +33,7 @@ type Post struct {
 	gorm.Model
 	Caption string `json:"caption"`
 	ImgPath string `json:"imgPath"`
+	Likes   uint   `json:"likes"`
 
 	UserID uint `json:"userId"`
 }
