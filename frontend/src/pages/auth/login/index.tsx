@@ -31,27 +31,21 @@ export default function Login() {
     }
 
     return(
-        <div className={styles.authform}>
-         <form onSubmit={handleSubmit}>
-            <label htmlFor="email">email</label>
-            <input type="text" placeholder="email@whatevermail.com" id="email" name="email"/>
-             <br />
+        <div className={styles.loginForm}>
+            <h1>Login</h1>
+            <form onSubmit={handleSubmit}>
+                <label>
+                    email
+                    <input type="text" id="email" name="email" placeholder="email@website.com" />
+                </label>
 
-            <label htmlFor="password">password</label>
-            <input type="password" placeholder="**********" id="password" name="password"/>
-             <br/>
+                <label>
+                    password
+                    <input type="password" id="password" name="password" placeholder="**********" />
+                </label>
 
-            <button> Log In</button>
-         </form>
-
-        <br/>
-
-         <button onClick={
-             () => Router.push("/auth/signup")}
-         >
-             Dont Have an account? Register here.
-         </button>
-
+                <button type="submit">Login</button>
+            </form>
         </div>
     )
 }

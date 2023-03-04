@@ -40,7 +40,7 @@ export default function Register() {
                     <input type="text" id="name" name="name" placeholder="name"/>
                 </label>
 
-                <label>
+                <label htmlFor="email">
                     email
                     <input type="text" id="email" name="email" placeholder="email@website.com" />
                 </label>
