@@ -34,7 +34,6 @@ export default function Register() {
     return(
         <div className={styles.signupForm}>
             <h1>Sign Up</h1>
-
             <form onSubmit={handleSubmit}>
                 <label>
                    name
@@ -56,11 +55,13 @@ export default function Register() {
                     <input type="password" id="confirm" name="confirm" placeholder="**********" />
                 </label>
 
-                <button type="submit">Log In</button>
+                <button type="submit">Sign Up</button>
             </form>
 
-            <button onClick={() => Router.push("/auth/login")}>
-                Already have an account? Login here.
+            <button
+                className={styles.loginRedirect}
+                onClick={() => Router.push("/auth/login")}>
+                Already have an account?
             </button>
         </div>
     )

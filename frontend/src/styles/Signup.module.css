@@ -5,6 +5,7 @@
     justify-content: center;
     width: 100vw;
     height: 100vh;
+    row-gap: 3rem;
 }
 
 .signupForm form {
@@ -27,10 +28,26 @@
 }
 
 .signupForm button {
-    margin: 10px;
-    padding: 10px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    background-color: #fff;
     cursor: pointer;
+    border: 1px solid #55E081FF;;
+    border-radius: 4px;
+    font-weight: 600;
+    margin: 0 10px;
+    width: 200px;
+    height:50px;
+    padding: 10px 0;
+    transition: 0.4s;
+
+    color: #55E081FF;
+    background-color: rgba(255, 255, 255, 1);
+}
+
+.signupForm button:hover {
+    color: white;
+    box-shadow: 0 0 20px #55E081FF;
+    background-color: #55E081FF;
+}
+
+.loginRedirect {
+    margin-top: 5rem;
 }
