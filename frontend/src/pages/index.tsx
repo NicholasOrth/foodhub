@@ -4,8 +4,9 @@ import styles from "../styles/Home.module.css";
 
 import Head from "next/head"
 import Router from "next/router";
+import {GetServerSidePropsContext} from "next";
 
-export default function home() {
+export default function Home() {
   return (
       <>
         <Head>
@@ -14,7 +15,7 @@ export default function home() {
         <div className={styles.container}>
           <div className={styles.content}>
               <h1>Welcome to FoodHub</h1>
-              <h3>The world's best social media site for food.</h3>
+              <h3>The world&apos;s best social media site for food.</h3>
           </div>
           <div className={styles.spacer}></div>
           <div className={styles.authLinks}>
@@ -32,7 +33,22 @@ export default function home() {
           </div>
         </div>
       </>
-
   )
+}
 
+export async function getServerSideProps(ctx: GetServerSidePropsContext) {
+    const jwt = ctx.req.cookies.jwt;
+
+    if (jwt) {
+        return {
+            redirect: {
+                destination: "/profile",
+                permanent: false,
+            }
+        }
+    }
+
+    return {
+        props: {}
+    }
 }

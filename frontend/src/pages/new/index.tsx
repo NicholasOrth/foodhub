@@ -2,6 +2,7 @@
 import Cookies from "universal-cookie";
 import {GetServerSidePropsContext} from "next";
 import Router from "next/router";
+import Navbar from "../../../components/Navbar";
 
 const cookies = new Cookies();
 
@@ -16,7 +17,7 @@ export default function New() {
         const jwt = cookies.get('jwt');
 
         try {
-            const res = await fetch('http://localhost:7100/image/upload', {
+            const res = await fetch('http://localhost:7100/post/create', {
                 method: 'POST',
                 headers: {
                     'Cookie': "jwt=" + jwt
@@ -28,7 +29,7 @@ export default function New() {
             const data = await res.json()
 
             if (res.ok) {
-                await Router.push('/profile')
+                await Router.push('/feed')
             }
         } catch (err) {
             console.log(err)
@@ -36,17 +37,20 @@ export default function New() {
     }
 
     return (
-        <form onSubmit={handleSubmit} encType="multipart/form-data">
-            <label htmlFor="caption">Caption</label>
-            <input type="text" id="caption" />
-            <br />
+        <>
+            <Navbar />
+            <form onSubmit={handleSubmit} encType="multipart/form-data">
+                <label htmlFor="caption">Caption</label>
+                <input type="text" id="caption" />
+                <br />
 
-            <label htmlFor="file">File</label>
-            <input type="file" id="file" />
-            <br />
+                <label htmlFor="file">File</label>
+                <input type="file" id="file" />
+                <br />
 
-            <button type="submit">Submit</button>
-        </form>
+                <button type="submit">Submit</button>
+            </form>
+        </>
     )
 }
 

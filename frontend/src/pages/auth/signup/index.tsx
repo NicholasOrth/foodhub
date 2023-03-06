@@ -1,6 +1,7 @@
 import Router from "next/router"
 
 import styles from "../../../styles/Signup.module.css"
+import {GetServerSidePropsContext} from "next";
 
 export default function Register() {
 
@@ -65,4 +66,21 @@ export default function Register() {
             </button>
         </div>
     )
+}
+
+export async function getServerSideProps(ctx: GetServerSidePropsContext) {
+    const jwt = ctx.req.cookies.jwt;
+
+    if (jwt) {
+        return {
+            redirect: {
+                destination: "/profile",
+                permanent: false,
+            }
+        }
+    }
+
+    return {
+        props: {}
+    }
 }

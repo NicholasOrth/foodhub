@@ -5,26 +5,30 @@ import Router from "next/router";
 import PostDisplay from "../../../components/PostDisplay";
 
 import styles from "../../styles/Profile.module.css";
+import Navbar from "../../../components/Navbar";
 
 export default function Profile(
     props: {data: {email: string, name: string, posts: any[]}})
 {
     return (
-        <div className={styles.profileContainer}>
-            <h1>{props.data.name}</h1>
-            <div className={styles.postsContainer}>
-                {
-                    props.data.posts.map((post: any) => {
-                        return (
-                            <PostDisplay post={post} key={post._id} />
-                        )
-                    })
-                }
+        <>
+            <Navbar />
+            <div className={styles.profileContainer}>
+                <h1>{props.data.name}</h1>
+                <div className={styles.postsContainer}>
+                    {
+                        props.data.posts.map((post: any) => {
+                            return (
+                                <PostDisplay post={post} key={post._id} />
+                            )
+                        })
+                    }
+                </div>
+                <button onClick={() => Router.push("/new")}>
+                    Create New Post
+                </button>
             </div>
-            <button onClick={() => Router.push("/new")}>
-                Create New Post
-            </button>
-        </div>
+        </>
     )
 }
 

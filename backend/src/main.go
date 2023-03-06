@@ -31,9 +31,10 @@ type User struct {
 
 type Post struct {
 	gorm.Model
-	Caption string `json:"caption"`
-	ImgPath string `json:"imgPath"`
-	Likes   uint   `json:"likes"`
+	Username string `json:"username"`
+	Caption  string `json:"caption"`
+	ImgPath  string `json:"imgPath"`
+	Likes    []uint `json:"likes" gorm:"type:integer[]"`
 
 	UserID uint `json:"userId"`
 }
@@ -236,7 +237,6 @@ func main() {
 			"message": "success",
 		})
 	})
-
 	router.POST("/auth/signup", func(c *gin.Context) {
 		/*
 			path the user struct name, email, and password extract
@@ -264,7 +264,7 @@ func main() {
 		c.JSON(http.StatusOK, nil)
 	})
 
-	router.POST("/image/upload", func(c *gin.Context) {
+	router.POST("/post/create", func(c *gin.Context) {
 		user, _, err := AuthUser(c, db)
 
 		caption := c.PostForm("caption")
@@ -297,8 +297,9 @@ func main() {
 		}
 
 		err = db.Model(&user).Association("Posts").Append(&Post{
-			Caption: caption,
-			ImgPath: path + filename,
+			Username: user.Name,
+			Caption:  caption,
+			ImgPath:  path + filename,
 		})
 		if err != nil {
 			c.AbortWithStatus(http.StatusInternalServerError)
@@ -309,9 +310,55 @@ func main() {
 			"message": "success",
 		})
 	})
+	router.POST("/post/like/:id", func(c *gin.Context) {
+		user, _, err := AuthUser(c, db)
+		if err != nil {
+			return
+		}
 
-	router.POST("/follow", func(c *gin.Context) {
+		postID, err := strconv.Atoi(c.Param("id"))
+		if err != nil {
+			c.AbortWithStatus(http.StatusBadRequest)
+			return
+		}
 
+		var post Post
+		res := db.First(&post, postID)
+
+		if res.Error != nil {
+			log.Println(res.Error)
+			c.AbortWithStatus(http.StatusInternalServerError)
+			return
+		}
+
+		err = db.Model(&post).Association("Likes").Append(user.ID)
+		if err != nil {
+			c.AbortWithStatus(http.StatusInternalServerError)
+			return
+		}
+
+		c.JSON(http.StatusOK, gin.H{
+			"message": "success",
+		})
+	})
+
+	router.GET("/feed", func(c *gin.Context) {
+		_, _, err := AuthUser(c, db)
+		if err != nil {
+			return
+		}
+
+		var posts []Post
+
+		err = db.Order("created_at").Find(&posts).Limit(10).Error
+		if err != nil {
+			c.AbortWithStatus(http.StatusInternalServerError)
+			return
+		}
+
+		c.JSON(http.StatusOK, gin.H{
+			"posts": posts,
+		})
 	})
 
 	err = router.Run(":7100")
