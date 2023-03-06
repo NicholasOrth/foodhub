@@ -1,0 +1,15 @@
+.container {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+    row-gap: 5rem;
+    flex-wrap: wrap;
+
+    width: 70vw;
+    height: 89.5vh;
+
+    margin-left: 15vw;
+    margin-right: 15vw;
+
+    padding-top: 3vh;
+}

@@ -2,24 +2,18 @@ import {GetServerSidePropsContext} from "next";
 import {Post} from "../../../types/Post";
 
 import Navbar from "../../../components/Navbar";
-import Image from "next/image";
+
+import PostDisplay from "../../../components/PostDisplay";
+
+import styles from "../../styles/Feed.module.css";
 
 export default function Feed(props: any) {
     return (
         <>
             <Navbar />
-            <div>
+            <div className={styles.container}>
                 {props.data.posts.map((post: Post) => (
-                    <div key={post.id}>
-                        <h1>{post.caption}</h1>
-                        <p>@{post.username}</p>
-                        <Image
-                            src={"http://localhost:7100/" + post.imgPath}
-                            alt={"Missing image"}
-                            width={300}
-                            height={300}
-                        />
-                    </div>
+                    <PostDisplay post={post} key={post.id} />
                 ))}
             </div>
         </>

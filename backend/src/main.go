@@ -24,7 +24,8 @@ type User struct {
 	Email    string `json:"email"`
 	Password string `json:"password"`
 
-	Following []uint `json:"following" gorm:"type:integer[]"`
+	Following  []uint `json:"following" gorm:"type:integer[]"`
+	LikedPosts []uint `json:"likedPosts" gorm:"type:integer[]"`
 
 	Posts []Post `json:"posts" gorm:"foreignKey:UserID"`
 }
@@ -34,9 +35,10 @@ type Post struct {
 	Username string `json:"username"`
 	Caption  string `json:"caption"`
 	ImgPath  string `json:"imgPath"`
-	Likes    []uint `json:"likes" gorm:"type:integer[]"`
+	Likes    uint   `json:"likes" gorm:"default:0"`
 
 	UserID uint `json:"userId"`
+	ID     uint `json:"id"`
 }
 
 type Credentials struct {
@@ -169,6 +171,10 @@ func main() {
 		if err != nil {
 			c.AbortWithStatus(http.StatusInternalServerError)
 			return
+		}
+
+		for _, post := range posts {
+			post.ID = post.Model.ID
 		}
 
 		c.Header("Content-Type", "application/json")
@@ -311,7 +317,7 @@ func main() {
 		})
 	})
 	router.POST("/post/like/:id", func(c *gin.Context) {
-		user, _, err := AuthUser(c, db)
+		_, _, err := AuthUser(c, db)
 		if err != nil {
 			return
 		}
@@ -331,14 +337,16 @@ func main() {
 			return
 		}
 
-		err = db.Model(&post).Association("Likes").Append(user.ID)
+		post.Likes++
+
+		err = db.Save(&post).Error
 		if err != nil {
 			c.AbortWithStatus(http.StatusInternalServerError)
 			return
 		}
 
 		c.JSON(http.StatusOK, gin.H{
-			"message": "success",
+			"likes": post.Likes,
 		})
 	})
 
