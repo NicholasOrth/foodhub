@@ -159,7 +159,7 @@ func main() {
 		})
 	})
 
-	router.GET("/user", func(c *gin.Context) {
+	router.GET("/user/me", func(c *gin.Context) {
 		user, _, err := AuthUser(c, db)
 		if err != nil {
 			return
@@ -184,6 +184,30 @@ func main() {
 			"posts": posts,
 		})
 	})
+	router.GET("/user/posts", func(c *gin.Context) {
+		user, _, err := AuthUser(c, db)
+		if err != nil {
+			return
+		}
+
+		var posts []Post
+
+		err = db.Model(&user).Association("Posts").Find(&posts)
+		if err != nil {
+			c.AbortWithStatus(http.StatusInternalServerError)
+			return
+		}
+
+		for _, post := range posts {
+			post.ID = post.Model.ID
+		}
+
+		c.JSON(http.StatusOK, gin.H{
+			"posts": posts,
+		})
+	})
+	router.GET("/user/following", func(c *gin.Context) {})
+	router.GET("/user/:id", func(c *gin.Context) {})
 
 	router.POST("/auth/login", func(c *gin.Context) {
 		var creds Credentials

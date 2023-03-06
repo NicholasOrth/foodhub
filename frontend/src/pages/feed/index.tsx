@@ -3,19 +3,13 @@ import {Post} from "../../../types/Post";
 
 import Navbar from "../../../components/Navbar";
 
-import PostDisplay from "../../../components/PostDisplay";
-
-import styles from "../../styles/Feed.module.css";
+import FeedDisplay from "../../../components/FeedDisplay";
 
 export default function Feed(props: any) {
     return (
         <>
             <Navbar />
-            <div className={styles.container}>
-                {props.data.posts.map((post: Post) => (
-                    <PostDisplay post={post} key={post.id} />
-                ))}
-            </div>
+            <FeedDisplay posts={props.data.posts} />
         </>
     )
 }

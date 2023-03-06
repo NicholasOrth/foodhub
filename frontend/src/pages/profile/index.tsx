@@ -1,9 +1,7 @@
 import {GetServerSidePropsContext} from "next";
 
-import Router from "next/router";
-
-import styles from "../../styles/Profile.module.css";
 import Navbar from "../../../components/Navbar";
+import FeedDisplay from "../../../components/FeedDisplay";
 
 export default function Profile(
     props: {data: {email: string, name: string, posts: any[]}})
@@ -11,12 +9,7 @@ export default function Profile(
     return (
         <>
             <Navbar />
-            <div className={styles.profileContainer}>
-                <h1>{props.data.name}</h1>
-                <button onClick={() => Router.push("/new")}>
-                    Create New Post
-                </button>
-            </div>
+            <FeedDisplay posts={props.data.posts} />
         </>
     )
 }
@@ -33,7 +26,7 @@ export async function getServerSideProps(ctx: GetServerSidePropsContext) {
         }
     }
 
-    const res: Response = await fetch('http://localhost:7100/user', {
+    const res: Response = await fetch('http://localhost:7100/user/me', {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
