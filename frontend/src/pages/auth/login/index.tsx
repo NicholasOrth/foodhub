@@ -23,7 +23,7 @@ export default function Login() {
                 body: JSON.stringify(data),
             });
 
-            await Router.push("/profile");
+            await Router.push("/feed");
         } catch (e: any) {
             console.log(e);
             Router.reload();
@@ -56,7 +56,7 @@ export async function getServerSideProps(ctx: GetServerSidePropsContext) {
     if (jwt) {
         return {
             redirect: {
-                destination: "/profile",
+                destination: "/feed",
                 permanent: false,
             }
         }
