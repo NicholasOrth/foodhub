@@ -3,6 +3,7 @@ import Cookies from "universal-cookie";
 import {GetServerSidePropsContext} from "next";
 import Router from "next/router";
 import Navbar from "../../../components/Navbar";
+import styles from "@/styles/New.module.css";
 
 const cookies = new Cookies();
 
@@ -39,17 +40,22 @@ export default function New() {
     return (
         <>
             <Navbar />
-            <form onSubmit={handleSubmit} encType="multipart/form-data">
-                <label htmlFor="caption">Caption</label>
-                <input type="text" id="caption" />
-                <br />
+            <div className={styles.container}>
+                <h1>New Post</h1>
+                <form onSubmit={handleSubmit}>
+                    <label>
+                        caption
+                        <textarea id="caption" name="caption" placeholder="caption"></textarea>
+                    </label>
 
-                <label htmlFor="file">File</label>
-                <input type="file" id="file" />
-                <br />
+                    <label>
+                        Photo
+                        <input type="file" id="file" name="file" />
+                    </label>
 
-                <button type="submit">Submit</button>
-            </form>
+                    <button type="submit">Post</button>
+                </form>
+            </div>
         </>
     )
 }
@@ -60,7 +66,7 @@ export async function getServerSideProps(ctx: GetServerSidePropsContext) {
     if (!jwt) {
         return {
             redirect: {
-                destination: "/auth/login",
+                destination: "/",
                 permanent: false,
             }
         }

@@ -1,26 +1,26 @@
 import {GetServerSidePropsContext} from "next";
 import {Post} from "../../../types/Post";
-import Image from "next/image";
-import Navbar from "../../../components/Navbar";
 
-export default function Feed(props: { data: Post[] }) {
+import Navbar from "../../../components/Navbar";
+import Image from "next/image";
+
+export default function Feed(props: any) {
     return (
         <>
             <Navbar />
             <div>
-                {props.data.map(post => (
+                {props.data.posts.map((post: Post) => (
                     <div key={post.id}>
-                        <h3>{post.caption}</h3>
+                        <h1>{post.caption}</h1>
                         <p>@{post.username}</p>
                         <Image
-                            src={"http://localhost:7100/images" + post.imgPath}
-                            alt={"Missing post image"}
-                            width={500}
-                            height={500}
+                            src={"http://localhost:7100/" + post.imgPath}
+                            alt={"Missing image"}
+                            width={300}
+                            height={300}
                         />
                     </div>
                 ))}
-                <br />
             </div>
         </>
     )
@@ -48,14 +48,13 @@ export async function getServerSideProps(ctx: GetServerSidePropsContext) {
     })
 
     try {
-        const data: Post[] = await res.json();
+        const data: { posts: Post[] } = await res.json();
         return {
             props: {
                 data
             }
         }
     } catch (e) {
-        console.log(e);
         return {
             props: {
                 posts: [],
