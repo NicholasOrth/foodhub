@@ -2,8 +2,6 @@ import {GetServerSidePropsContext} from "next";
 
 import Router from "next/router";
 
-import PostDisplay from "../../../components/PostDisplay";
-
 import styles from "../../styles/Profile.module.css";
 import Navbar from "../../../components/Navbar";
 
@@ -15,15 +13,6 @@ export default function Profile(
             <Navbar />
             <div className={styles.profileContainer}>
                 <h1>{props.data.name}</h1>
-                <div className={styles.postsContainer}>
-                    {
-                        props.data.posts.map((post: any) => {
-                            return (
-                                <PostDisplay post={post} key={post._id} />
-                            )
-                        })
-                    }
-                </div>
                 <button onClick={() => Router.push("/new")}>
                     Create New Post
                 </button>
