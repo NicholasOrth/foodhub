@@ -55,6 +55,21 @@ func TestRemoveFromSlice(t *testing.T) {
 		t.Errorf("RemoveFromSlice function does not work")
 	}
 }
+// test for block and unblock user function
+func TestBlockUser(t *testing.T) {
+	user := User{}
+	targetID := uint(1)
+	user.Blocked = BlockUser(user, targetID)
+	if !Contains(user.Blocked, targetID) {
+		t.Errorf("BlockUser function does not work")
+	}
+
+	user.Blocked = BlockUser(user, targetID)
+	BlockUser(user, targetID)
+	if Contains(user.Blocked, targetID) {
+		t.Errorf("BlockUser function does not work")
+	}
+}
 
 // handeler for testing GET request
 func getUsersHandler(w http.ResponseWriter, r *http.Request) {
