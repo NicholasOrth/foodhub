@@ -25,6 +25,7 @@ type User struct {
 	Password string `json:"password"`
 
 	Following  []uint `json:"following" gorm:"type:integer[]"`
+	Blocked    []uint `json:"blocked" gorm:"type:integer[]"`
 	LikedPosts []uint `json:"likedPosts" gorm:"type:integer[]"`
 
 	Posts []Post `json:"posts" gorm:"foreignKey:UserID"`
@@ -55,6 +56,17 @@ type Claims struct {
 
 func AddFollower(user User, target User) {
 	user.Following = append(user.Following, target.ID)
+}
+
+// function will block user, or unblock if already blocked
+func BlockUser(user User, targetID uint) []uint {
+	newList := user.Blocked
+	if Contains(user.Blocked, targetID) {
+		newList = RemoveFromSlice(user.Blocked, targetID)
+	} else {
+		newList = append(user.Blocked, targetID)
+	}
+	return newList
 }
 func Contains(slice []uint, val uint) bool {
 	for _, item := range slice {
