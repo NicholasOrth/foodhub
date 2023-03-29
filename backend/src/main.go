@@ -240,7 +240,11 @@ func main() {
 			return
 		}
 
-		// Compare the stored hashed password, with the hashed version of the password that was received
+		// Compare the stored hashed password, with the hashed version of the password that was received\
+		if query.Email != creds.Email {
+			c.AbortWithStatus(http.StatusUnauthorized)
+			return
+		}
 		err := bcrypt.CompareHashAndPassword([]byte(query.Password), []byte(creds.Password))
 		if err != nil {
 			c.AbortWithStatus(http.StatusUnauthorized)
