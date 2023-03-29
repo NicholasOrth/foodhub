@@ -36,7 +36,7 @@ type Post struct {
 	Username string `json:"username"`
 	Caption  string `json:"caption"`
 	ImgPath  string `json:"imgPath"`
-	Likes    uint   `json:"likes" gorm:"default:0"`
+	Likes    []uint   `json:"likes" gorm:"type:integer[]"`
 
 	UserID uint `json:"userId"`
 	ID     uint `json:"id"`
@@ -365,15 +365,22 @@ func main() {
 		}
 
 		var post Post
+		var user User
 		res := db.First(&post, postID)
+		
 
 		if res.Error != nil {
 			log.Println(res.Error)
 			c.AbortWithStatus(http.StatusInternalServerError)
 			return
 		}
+		if !Contains(post.Likes, user.ID) {
+			post.Likes = append(post.Likes, user.ID)
+		} else {
+			post.Likes = RemoveFromSlice(post.Likes, user.ID)
+		}
 
-		post.Likes++
+
 
 		err = db.Save(&post).Error
 		if err != nil {
@@ -382,7 +389,7 @@ func main() {
 		}
 
 		c.JSON(http.StatusOK, gin.H{
-			"likes": post.Likes,
+			"likes": len(post.Likes),
 		})
 	})
 
