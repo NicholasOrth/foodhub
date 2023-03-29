@@ -411,6 +411,51 @@ func main() {
 			"posts": posts,
 		})
 	})
+	// follow a user
+router.POST("/user/follow/:id", func(c *gin.Context) {
+	// get the authenticated user
+	authUser, _, err := AuthUser(c, db)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+
+	// get the user to follow
+	targetID, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			"error": "invalid user ID",
+		})
+		return
+	}
+
+	// check if the user to follow exists
+	var target User
+	res := db.First(&target, targetID)
+	if res.Error != nil {
+		c.AbortWithStatusJSON(http.StatusNotFound, gin.H{
+			"error": "user not found",
+		})
+		return
+	}
+
+	// update the following list of the authenticated user
+	authUser.Following = append(authUser.Following, target.ID)
+	err = db.Save(&authUser).Error
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
+			"error": "failed to update following list",
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"message": fmt.Sprintf("You are now following %s", target.Name),
+	})
+})
+
 
 	err = router.Run(":7100")
 	if err != nil {
