@@ -46,6 +46,12 @@ export default function Login() {
 
                 <button type="submit">Login</button>
             </form>
+
+            <button
+                className={styles.loginRedirect}
+                onClick={() => Router.push("/auth/signup")}>
+                Need an account?
+            </button>
         </div>
     )
 }

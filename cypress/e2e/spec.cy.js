@@ -20,7 +20,7 @@ describe('Home page login button click', () => {
   it('clicks the log in button', () => {
     cy.visit('/')
 
-    cy.contains('Log In').click()
+    cy.contains('Login').click()
   })
 })
 
@@ -36,7 +36,7 @@ describe('Login page, signup button click', () => {
   it('clicks the log in button', () => {
     cy.visit('/auth/login/')
 
-    cy.contains('Dont Have an account? Register here.').click()
+    cy.contains('Need an account?').click()
   })
 })
 
@@ -44,6 +44,6 @@ describe('Signup page, already have acct button click', () => {
   it('clicks the log in button', () => {
     cy.visit('/auth/signup/')
 
-    cy.contains('Already have an account? Login here.').click()
+    cy.contains('Already have an account?').click()
   })
 })
