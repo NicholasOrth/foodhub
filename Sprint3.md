@@ -20,7 +20,7 @@ router.POST("/post/create"  : Takes a user inputted caption and photo, creates a
 
 router.POST("/post/like/:id"  :  When a user presses "like" check to see if post has already been liked by user, if so, remove their like, otherwise add user ID to post's "liked" slice.  send amount of likes to front end
 
-router.GET("/feed"  :  gets user's posts from DB and sorts by date posted, sends posts to front end
+router.GET(":/feed"  :  gets user's posts from DB and sorts by date posted, sends posts to front end
 
 router.POST("/user/follow/:id"  :  when a user presses "follow" on a user, first check if user exists, if not send StatusNotFound error, if so checks if user is already following target user, if so send StatusBadRequest, else if DB update fails send StatusInternalServerError, else update following list and send success message to front end
 
@@ -31,4 +31,22 @@ tests:
 
 TestBlockUser:  Creates a user and blocks an ID number, then unblocks it to test if both functionalities are working
 
-FRONTEND
+FRONTEND: 
+TO DO: NAV BAR
+LOG IN
+
+complete style change added highlighting buttons giving a more user friendly feel
+
+
+updates to the login functinallity; users are now able to create an account 
+
+
+once account is created users is able to upload an iamge file where they can later view in their feed and profile tabs respectivly
+
+
+NAV bar was add for easier organization with Profile, Feed, and new as labels
+
+
+more functinally needs to be added to organize post current system inplaces gird. 
+
+
