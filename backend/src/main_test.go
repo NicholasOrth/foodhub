@@ -20,24 +20,6 @@ func TestHashStr(t *testing.T) {
 	}
 }
 
-// test the add follower function
-// NOTE: not yet implemented as a built in function, instead just use append twice
-/*
-func TestAddFollower(t *testing.T) {
-	user := User{}
-	target := User{}
-
-	user.Following = append(user.Following, target.ID)
-	target.Followers = append(target.Followers, user.ID)
-
-	if len(user.Following) != 1 {
-		t.Errorf("User following list not updated, length: %d", len(user.Following))
-	}
-	if len(target.Followers) != 1 {
-		t.Errorf("Target followers list not updated, length: %d", len(target.Followers))
-	}
-}
-*/
 // Test for contains function
 func TestContains(t *testing.T) {
 	slice := []uint{1, 2, 3, 4, 5}
@@ -55,6 +37,7 @@ func TestRemoveFromSlice(t *testing.T) {
 		t.Errorf("RemoveFromSlice function does not work")
 	}
 }
+
 // test for block and unblock user function
 func TestBlockUser(t *testing.T) {
 	user := User{}
