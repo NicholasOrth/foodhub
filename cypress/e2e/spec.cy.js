@@ -47,3 +47,18 @@ describe('Signup page, already have acct button click', () => {
     cy.contains('Already have an account?').click()
   })
 })
+describe('Login and Logout', () => {
+  beforeEach(() => {
+    cy.visit('/login')
+  })
+
+  it('should log in and log out successfully', () => {
+    // Fill out the login form
+    cy.get('input[name="username"]').type('myusername')
+    cy.get('input[name="password"]').type('mypassword')
+    cy.get('button[type="submit"]').click()
+
+    // Check if the user is redirected to the home page after login
+    cy.url().should('include', '/home')
+  })
+})
