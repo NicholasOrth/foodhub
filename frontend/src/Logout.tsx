@@ -1,18 +1,16 @@
-// import React from "react";
-// import { useHistory } from "react-router-dom";
+import React from "react";
 
-// function LogoutButton() {
-//   const history = useHistory();
+function LogoutButton() {
 
-//   function handleLogout() {
-//     // Delete the cookie here
-//     document.cookie =;
+  function handleLogout() {
+    // Delete the cookie here
+    document.cookie = "jwt=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
 
-//     // Redirect the user to the login screen
-//     history.push("/login");
-//   }
+    // Redirect the user to the login screen
 
-//   return <button onClick={handleLogout}>Logout</button>;
-// }
-// export default LogoutButton;
+    }
+
+  return <button onClick={handleLogout}>Logout</button>;
+}
+export default LogoutButton;
 export {};
