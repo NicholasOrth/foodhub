@@ -456,7 +456,7 @@ router.POST("/user/follow/:id", func(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"message": fmt.Sprintf("You are now following %s", target.Name),
+		"message": "successfully followed",
 	})
 })
 
