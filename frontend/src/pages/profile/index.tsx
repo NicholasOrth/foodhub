@@ -14,6 +14,7 @@ export default function Profile(
     )
 }
 
+
 export async function getServerSideProps(ctx: GetServerSidePropsContext) {
     const jwt = ctx.req.cookies.jwt;
 
@@ -34,6 +35,8 @@ export async function getServerSideProps(ctx: GetServerSidePropsContext) {
         },
         credentials: 'include',
     })
+
+
 
     const data: {email: string, name: string, posts: any[]} = await res.json();
 
