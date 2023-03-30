@@ -7,7 +7,11 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/gin-gonic/gin"
+	"github.com/golang-jwt/jwt"
 	"golang.org/x/crypto/bcrypt"
+	"gorm.io/driver/sqlite"
+	"gorm.io/gorm"
 )
 
 // test the hash function
@@ -154,5 +158,45 @@ func TestCreateUser(t *testing.T) {
 	expectedUser := User{Name: "Nick"}
 	if createdUser.ID != expectedUser.ID {
 		t.Fatalf("Expected created user to be %+v, but got %+v", expectedUser.ID, createdUser.ID)
+	}
+}
+func TestAuthUser(t *testing.T) {
+	// initialize Gin router and database
+	//r := gin.Default()
+	db, err := gorm.Open(sqlite.Open("test.sqlite"), &gorm.Config{})
+
+	// add test user to database
+	user := User{
+		Name: "Nick",
+	}
+	db.Create(&user)
+
+	//expectedName := "Nick"
+	// set up test context with JWT cookie
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, Claims{
+		ID: user.ID,
+	})
+	jwtCookie, _ := token.SignedString(jwtKey)
+	req, _ := http.NewRequest("GET", "/", nil)
+	req.AddCookie(&http.Cookie{Name: "jwt", Value: jwtCookie})
+	w := httptest.NewRecorder()
+	c, _ := gin.CreateTestContext(w)
+	c.Request = req
+
+	// call AuthUser function with test context and database
+	authUser, claims, err := AuthUser(c, db)
+
+	if err != nil {
+		t.Fatalf("Error authenticating user: %v", err)
+	}
+
+	// check for correct user informationif user.ID != authUser.ID {
+	if user.ID != authUser.ID {
+		t.Fatalf("User ID incorrect")
+	}
+
+	// check for correct claims information
+	if user.ID != claims.ID {
+		t.Fatalf("Claims ID incorrect")
 	}
 }
