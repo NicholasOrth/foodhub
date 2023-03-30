@@ -36,7 +36,7 @@ type Post struct {
 	Username string `json:"username"`
 	Caption  string `json:"caption"`
 	ImgPath  string `json:"imgPath"`
-	Likes    []uint   `json:"likes" gorm:"type:integer[]"`
+	Likes    []uint `json:"likes" gorm:"type:integer[]"`
 
 	UserID uint `json:"userId"`
 	ID     uint `json:"id"`
@@ -309,6 +309,19 @@ func main() {
 		c.Header("Content-Type", "application/json")
 		c.JSON(http.StatusOK, nil)
 	})
+	router.POST("/auth/logout", func(c *gin.Context) {
+		c.SetCookie(
+			"jwt",
+			"",
+			-1,
+			"/",
+			"localhost",
+			false,
+			true)
+		c.JSON(http.StatusOK, gin.H{
+			"message": "success",
+		})
+	})
 
 	router.POST("/post/create", func(c *gin.Context) {
 		user, _, err := AuthUser(c, db)
@@ -371,7 +384,6 @@ func main() {
 		var post Post
 		var user User
 		res := db.First(&post, postID)
-		
 
 		if res.Error != nil {
 			log.Println(res.Error)
@@ -383,8 +395,6 @@ func main() {
 		} else {
 			post.Likes = RemoveFromSlice(post.Likes, user.ID)
 		}
-
-
 
 		err = db.Save(&post).Error
 		if err != nil {
@@ -416,50 +426,49 @@ func main() {
 		})
 	})
 	// follow a user
-router.POST("/user/follow/:id", func(c *gin.Context) {
-	// get the authenticated user
-	authUser, _, err := AuthUser(c, db)
-	if err != nil {
-		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
-			"error": err.Error(),
-		})
-		return
-	}
+	router.POST("/user/follow/:id", func(c *gin.Context) {
+		// get the authenticated user
+		authUser, _, err := AuthUser(c, db)
+		if err != nil {
+			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
+				"error": err.Error(),
+			})
+			return
+		}
 
-	// get the user to follow
-	targetID, err := strconv.Atoi(c.Param("id"))
-	if err != nil {
-		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
-			"error": "invalid user ID",
-		})
-		return
-	}
+		// get the user to follow
+		targetID, err := strconv.Atoi(c.Param("id"))
+		if err != nil {
+			c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+				"error": "invalid user ID",
+			})
+			return
+		}
 
-	// check if the user to follow exists
-	var target User
-	res := db.First(&target, targetID)
-	if res.Error != nil {
-		c.AbortWithStatusJSON(http.StatusNotFound, gin.H{
-			"error": "user not found",
-		})
-		return
-	}
+		// check if the user to follow exists
+		var target User
+		res := db.First(&target, targetID)
+		if res.Error != nil {
+			c.AbortWithStatusJSON(http.StatusNotFound, gin.H{
+				"error": "user not found",
+			})
+			return
+		}
 
-	// update the following list of the authenticated user
-	authUser.Following = append(authUser.Following, target.ID)
-	err = db.Save(&authUser).Error
-	if err != nil {
-		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
-			"error": "failed to update following list",
-		})
-		return
-	}
+		// update the following list of the authenticated user
+		authUser.Following = append(authUser.Following, target.ID)
+		err = db.Save(&authUser).Error
+		if err != nil {
+			c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
+				"error": "failed to update following list",
+			})
+			return
+		}
 
-	c.JSON(http.StatusOK, gin.H{
-		"message": "successfully followed",
+		c.JSON(http.StatusOK, gin.H{
+			"message": "successfully followed",
+		})
 	})
-})
-
 
 	err = router.Run(":7100")
 	if err != nil {

@@ -2,14 +2,25 @@ import {GetServerSidePropsContext} from "next";
 
 import Navbar from "../../../components/Navbar";
 import FeedDisplay from "../../../components/FeedDisplay";
+import Router from "next/router";
 
 export default function Profile(
     props: {data: {email: string, name: string, posts: any[]}})
 {
+    const logout = async () => {
+        await fetch("http://localhost:7100/auth/logout", {
+            method: "POST",
+            credentials: "include",
+        })
+
+        await Router.push("/auth/login");
+    };
+
     return (
         <>
             <Navbar />
             <FeedDisplay posts={props.data.posts} />
+            <button onClick={() => { logout(); }}>Logout</button>
         </>
     )
 }
