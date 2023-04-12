@@ -15,6 +15,12 @@ export default function Register() {
          const  password= e.target.password.value;
          const confirm = e.target.confirm.value;
          const passwordRegex = /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d).{8,}$/;
+         const emailRegex = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/;
+
+         if(!emailRegex.test(email)) {
+              toast.error("Invalid email");
+                return;
+            }
         
          if (!passwordRegex.test(password)) {
            toast.error("Password must contain at least 8 characters, including at least one uppercase letter, one lowercase letter, and one number.");
