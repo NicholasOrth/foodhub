@@ -4,7 +4,7 @@ import {GetServerSidePropsContext} from "next";
 import Router from "next/router";
 import Navbar from "../../../components/Navbar";
 import styles from "@/styles/New.module.css";
-
+import toast from "react-hot-toast";
 const cookies = new Cookies();
 
 export default function New() {
@@ -30,10 +30,12 @@ export default function New() {
             const data = await res.json()
 
             if (res.ok) {
+                toast.success('Post posted!')
                 await Router.push('/feed')
             }
+            
         } catch (err) {
-            console.log(err)
+            toast.error("Issue posting post")
         }
     }
 

@@ -1,4 +1,5 @@
 import Router from "next/router"
+import toast from "react-hot-toast"
 
 import styles from "../../../styles/Signup.module.css"
 import {GetServerSidePropsContext} from "next";
@@ -15,7 +16,7 @@ export default function Register() {
         };
 
         if (data.password !== e.target.confirm.value) {
-            alert("Passwords do not match");
+            toast.error("Passwords do not match");
             return
         }
 
@@ -26,8 +27,10 @@ export default function Register() {
             },
             body: JSON.stringify(data),
         });
+        
 
         if (res.status === 200) {
+            toast.success("Sign up successful");
             await Router.push("/auth/login");
         }
     }

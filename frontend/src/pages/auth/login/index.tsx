@@ -1,6 +1,6 @@
 import React from "react"
 import styles from "../../../styles/Login.module.css"
-
+import toast from "react-hot-toast"
 import Router from "next/router"
 import {GetServerSidePropsContext} from "next";
 
@@ -14,18 +14,24 @@ export default function Login() {
         };
 
         try {
-            await fetch("http://localhost:7100/auth/login", {
+            const response = await fetch("http://localhost:7100/auth/login", {
+            
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
                 },
                 credentials: "include",
                 body: JSON.stringify(data),
+             
             });
+            if (response.status === 200) {
+                toast.success("Login successful");
+                await Router.push("/feed");
+            }
 
-            await Router.push("/feed");
+           
         } catch (e: any) {
-            console.log(e);
+           toast.error(e.message);
             Router.reload();
         }
     }

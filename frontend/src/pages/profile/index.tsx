@@ -1,5 +1,5 @@
 import {GetServerSidePropsContext} from "next";
-
+import toast from "react-hot-toast";
 import Navbar from "../../../components/Navbar";
 import FeedDisplay from "../../../components/FeedDisplay";
 import Router from "next/router";
@@ -38,6 +38,7 @@ export async function getServerSideProps(ctx: GetServerSidePropsContext) {
         }
     }
 
+
     const res: Response = await fetch('http://localhost:7100/user/me', {
         method: 'GET',
         headers: {
@@ -45,7 +46,18 @@ export async function getServerSideProps(ctx: GetServerSidePropsContext) {
             'Cookie': "jwt=" + jwt,
         },
         credentials: 'include',
-    })
+        
+
+    });
+
+    if (res.status === 401) {
+        return {
+            redirect: {
+                destination: "/auth/login",
+                permanent: false,
+            }
+        }
+    }
 
 
 
