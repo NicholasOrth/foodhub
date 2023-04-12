@@ -13,10 +13,17 @@ export default function New() {
         e.preventDefault()
         
         const file = e.target.file.files[0];
+        const caption = e.target.caption.value;
+
         if(acceptableTypes.includes(file.type) === false) {
             toast.error("File type not supported");
             return;
         }
+        if(caption === "") {
+            toast.error("Let the people know what you're posting!");
+            return;
+        }
+
 
         const formData = new FormData()
         formData.append('file', file)
