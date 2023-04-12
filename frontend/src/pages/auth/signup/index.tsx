@@ -9,16 +9,25 @@ export default function Register() {
     const handleSubmit = async (e: any) => {
         e.preventDefault();
 
-        const data = {
-            name: e.target.name.value,
-            email: e.target.email.value,
-            password: e.target.password.value,
-        };
 
-        if (data.password !== e.target.confirm.value) {
-            toast.error("Passwords do not match");
-            return
-        }
+        const name= e.target.name.value;
+        const email= e.target.email.value;
+         const  password= e.target.password.value;
+         const confirm = e.target.confirm.value;
+         const passwordRegex = /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d).{8,}$/;
+        
+         if (!passwordRegex.test(password)) {
+           toast.error("Password must contain at least 8 characters, including at least one uppercase letter, one lowercase letter, and one number.");
+           return;
+         }
+       
+         if (password !== confirm) {
+           toast.error("Passwords do not match");
+           return;
+         }
+       
+         const data = { name, email, password };
+       
 
         const res: Response = await fetch("http://localhost:7100/auth/signup", {
             method: "POST",
