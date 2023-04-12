@@ -11,7 +11,8 @@ import (
 	"github.com/golang-jwt/jwt"
 	"github.com/joho/godotenv"
 	"golang.org/x/crypto/bcrypt"
-	"gorm.io/driver/sqlite"
+
+	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 
 	"log"
@@ -148,7 +149,8 @@ func main() {
 	}
 
 	// db connection
-	db, err := gorm.Open(sqlite.Open("test.sqlite"), &gorm.Config{})
+	dsn := os.Getenv("DB_URL")
+	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
 	if err != nil {
 		log.Fatalln(err)
 	}
