@@ -43,7 +43,7 @@ type Post struct {
 type Like struct {
 	gorm.Model
 
-	UserID uint 
+	UserID uint
 	PostID uint
 }
 
@@ -58,6 +58,40 @@ type Claims struct {
 	Email string `json:"email"`
 	jwt.StandardClaims
 }
+
+/*func AddFollower(user User, target User) {
+	user.Following = append(user.Following, target.ID)
+}
+
+// function will block user, or unblock if already blocked
+func BlockUser(user User, targetID uint) []uint {
+	newList := user.Blocked
+	if Contains(user.Blocked, targetID) {
+		newList = RemoveFromSlice(user.Blocked, targetID)
+	} else {
+		newList = append(user.Blocked, targetID)
+	}
+	return newList
+}
+func Contains(slice []uint, val uint) bool {
+	for _, item := range slice {
+		if item == val {
+			return true
+		}
+	}
+	return false
+}
+
+func RemoveFromSlice(slice []uint, val uint) []uint {
+	// iterate over the slice and copy all elements except u to a new slice
+	var result []uint
+	for _, i := range slice {
+		if i != val {
+			result = append(result, i)
+		}
+	}
+	return result
+}*/
 
 func HashStr(data string) string {
 	hashedData, err :=
@@ -358,8 +392,8 @@ func main() {
 		var like Like
 		tx := db.Where("user_id = ? AND post_id = ?", user.ID, post.ID).First(&like)
 		if tx.Error != nil {
-			log.Println(tx.Error);
-		}	
+			log.Println(tx.Error)
+		}
 
 		if like.ID != 0 { // If the like exists, delete it
 			err := db.Model(&post).Association("Likes").Delete(&like)
