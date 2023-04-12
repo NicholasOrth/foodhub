@@ -20,26 +20,31 @@ import (
 
 type User struct {
 	gorm.Model
-	Name     string `json:"name"`
-	Email    string `json:"email"`
+	Name     string `json:"name" gorm:"unique"`
+	Email    string `json:"email" gorm:"unique"`
 	Password string `json:"password"`
 
-	Following  []uint `json:"following" gorm:"type:integer[]"`
-	Blocked    []uint `json:"blocked" gorm:"type:integer[]"`
-	LikedPosts []uint `json:"likedPosts" gorm:"type:integer[]"`
-
-	Posts []Post `json:"posts" gorm:"foreignKey:UserID"`
+	Posts []Post `json:"posts"`
 }
 
 type Post struct {
-	gorm.Model
-	Username string `json:"username"`
-	Caption  string `json:"caption"`
-	ImgPath  string `json:"imgPath"`
-	Likes    []uint `json:"likes" gorm:"type:integer[]"`
+	ID        uint      `gorm:"primarykey" json:"id"`
+	CreatedAt time.Time `json:"createdAt"`
+	UpdatedAt time.Time `json:"updatedAt"`
+	DeletedAt time.Time `gorm:"index" json:"deletedAt"`
 
-	UserID uint `json:"userId"`
-	ID     uint `json:"id"`
+	UserID  uint   `json:"userId"`
+	Caption string `json:"caption"`
+	ImgPath string `json:"imgPath"`
+
+	Likes []Like `json:"likes"`
+}
+
+type Like struct {
+	gorm.Model
+
+	UserID uint
+	PostID uint
 }
 
 type Credentials struct {
@@ -54,7 +59,7 @@ type Claims struct {
 	jwt.StandardClaims
 }
 
-func AddFollower(user User, target User) {
+/*func AddFollower(user User, target User) {
 	user.Following = append(user.Following, target.ID)
 }
 
@@ -86,7 +91,8 @@ func RemoveFromSlice(slice []uint, val uint) []uint {
 		}
 	}
 	return result
-}
+}*/
+
 func HashStr(data string) string {
 	hashedData, err :=
 		bcrypt.GenerateFromPassword([]byte(data), bcrypt.DefaultCost)
@@ -147,7 +153,7 @@ func main() {
 		log.Fatalln(err)
 	}
 
-	err = db.AutoMigrate(&User{}, &Post{})
+	err = db.AutoMigrate(&User{}, &Post{}, &Like{})
 	if err != nil {
 		log.Println(err)
 	}
@@ -185,10 +191,6 @@ func main() {
 			return
 		}
 
-		for _, post := range posts {
-			post.ID = post.Model.ID
-		}
-
 		c.Header("Content-Type", "application/json")
 		c.JSON(http.StatusOK, gin.H{
 			"email": user.Email,
@@ -210,15 +212,10 @@ func main() {
 			return
 		}
 
-		for _, post := range posts {
-			post.ID = post.Model.ID
-		}
-
 		c.JSON(http.StatusOK, gin.H{
 			"posts": posts,
 		})
 	})
-	router.GET("/user/following", func(c *gin.Context) {})
 	router.GET("/user/:id", func(c *gin.Context) {})
 
 	router.POST("/auth/login", func(c *gin.Context) {
@@ -309,6 +306,7 @@ func main() {
 		c.Header("Content-Type", "application/json")
 		c.JSON(http.StatusOK, nil)
 	})
+
 	router.POST("/auth/logout", func(c *gin.Context) {
 		c.SetCookie(
 			"jwt",
@@ -356,10 +354,10 @@ func main() {
 		}
 
 		err = db.Model(&user).Association("Posts").Append(&Post{
-			Username: user.Name,
-			Caption:  caption,
-			ImgPath:  path + filename,
+			Caption: caption,
+			ImgPath: path + filename,
 		})
+
 		if err != nil {
 			c.AbortWithStatus(http.StatusInternalServerError)
 			return
@@ -369,8 +367,9 @@ func main() {
 			"message": "success",
 		})
 	})
+
 	router.POST("/post/like/:id", func(c *gin.Context) {
-		_, _, err := AuthUser(c, db)
+		user, _, err := AuthUser(c, db)
 		if err != nil {
 			return
 		}
@@ -382,7 +381,6 @@ func main() {
 		}
 
 		var post Post
-		var user User
 		res := db.First(&post, postID)
 
 		if res.Error != nil {
@@ -390,20 +388,57 @@ func main() {
 			c.AbortWithStatus(http.StatusInternalServerError)
 			return
 		}
-		if !Contains(post.Likes, user.ID) {
-			post.Likes = append(post.Likes, user.ID)
-		} else {
-			post.Likes = RemoveFromSlice(post.Likes, user.ID)
+
+		var like Like
+		tx := db.Where("user_id = ? AND post_id = ?", user.ID, post.ID).First(&like)
+		if tx.Error != nil {
+			log.Println(tx.Error)
 		}
 
-		err = db.Save(&post).Error
+		if like.ID != 0 { // If the like exists, delete it
+			err := db.Model(&post).Association("Likes").Delete(&like)
+			if err != nil {
+				log.Println(err)
+				c.AbortWithStatus(http.StatusInternalServerError)
+				return
+			}
+		} else {
+			like := Like{UserID: user.ID, PostID: post.ID}
+			err := db.Model(&post).Association("Likes").Append(&like)
+			if err != nil {
+				log.Println(err)
+				c.AbortWithStatus(http.StatusInternalServerError)
+				return
+			}
+		}
+
+		likes := db.Model(&post).Association("Likes").Count()
+
+		c.JSON(http.StatusOK, gin.H{
+			"likes": likes,
+		})
+	})
+	router.GET("/post/info/:id", func(c *gin.Context) {
+		postID, err := strconv.Atoi(c.Param("id"))
 		if err != nil {
+			c.AbortWithStatus(http.StatusBadRequest)
+			return
+		}
+
+		var post Post
+		res := db.First(&post, postID)
+
+		if res.Error != nil {
+			log.Println(res.Error)
 			c.AbortWithStatus(http.StatusInternalServerError)
 			return
 		}
 
+		likes := db.Model(&post).Association("Likes").Count()
+
 		c.JSON(http.StatusOK, gin.H{
-			"likes": len(post.Likes),
+			"post":  post,
+			"likes": likes,
 		})
 	})
 
@@ -426,7 +461,7 @@ func main() {
 		})
 	})
 	// follow a user
-	router.POST("/user/follow/:id", func(c *gin.Context) {
+	/*router.POST("/user/follow/:id", func(c *gin.Context) {
 		// get the authenticated user
 		authUser, _, err := AuthUser(c, db)
 		if err != nil {
@@ -468,7 +503,7 @@ func main() {
 		c.JSON(http.StatusOK, gin.H{
 			"message": "successfully followed",
 		})
-	})
+	})*/
 
 	err = router.Run(":7100")
 	if err != nil {

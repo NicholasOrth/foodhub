@@ -4,8 +4,6 @@ export type Post = {
     updatedAt: string;
     deletedAt: string;
 
-    username: string;
     caption: string;
     imgPath: string;
-    likes: number;
 }

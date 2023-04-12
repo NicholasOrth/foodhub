@@ -25,38 +25,38 @@ func TestHashStr(t *testing.T) {
 }
 
 // Test for contains function
-func TestContains(t *testing.T) {
-	slice := []uint{1, 2, 3, 4, 5}
-	val := uint(3)
-	if !Contains(slice, val) {
-		t.Errorf("Contains function does not work")
-	}
-}
+// func TestContains(t *testing.T) {
+// 	slice := []uint{1, 2, 3, 4, 5}
+// 	val := uint(3)
+// 	if !Contains(slice, val) {
+// 		t.Errorf("Contains function does not work")
+// 	}
+// }
 
-func TestRemoveFromSlice(t *testing.T) {
-	slice := []uint{1, 2, 3, 4, 5}
-	val := uint(3)
-	slice = RemoveFromSlice(slice, val)
-	if Contains(slice, val) {
-		t.Errorf("RemoveFromSlice function does not work")
-	}
-}
+// func TestRemoveFromSlice(t *testing.T) {
+// 	slice := []uint{1, 2, 3, 4, 5}
+// 	val := uint(3)
+// 	slice = RemoveFromSlice(slice, val)
+// 	if Contains(slice, val) {
+// 		t.Errorf("RemoveFromSlice function does not work")
+// 	}
+// }
 
 // test for block and unblock user function
-func TestBlockUser(t *testing.T) {
-	user := User{}
-	targetID := uint(1)
-	user.Blocked = BlockUser(user, targetID)
-	if !Contains(user.Blocked, targetID) {
-		t.Errorf("BlockUser function does not work")
-	}
+// func TestBlockUser(t *testing.T) {
+// 	user := User{}
+// 	targetID := uint(1)
+// 	user.Blocked = BlockUser(user, targetID)
+// 	if !Contains(user.Blocked, targetID) {
+// 		t.Errorf("BlockUser function does not work")
+// 	}
 
-	user.Blocked = BlockUser(user, targetID)
-	BlockUser(user, targetID)
-	if Contains(user.Blocked, targetID) {
-		t.Errorf("BlockUser function does not work")
-	}
-}
+// 	user.Blocked = BlockUser(user, targetID)
+// 	BlockUser(user, targetID)
+// 	if Contains(user.Blocked, targetID) {
+// 		t.Errorf("BlockUser function does not work")
+// 	}
+// }
 
 // handeler for testing GET request
 func getUsersHandler(w http.ResponseWriter, r *http.Request) {

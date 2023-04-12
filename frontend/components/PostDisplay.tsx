@@ -8,7 +8,7 @@ import Cookies from "universal-cookie";
 const cookies = new Cookies();
 
 export default function PostDisplay({post}: {post: Post}) {
-    const [likes, setLikes] = useState(post.likes || 0);
+    const [likes, setLikes] = useState(0);
 
     const likePost = async () => {
         const res = await fetch("http://localhost:7100/post/like/" + post.id, {
@@ -19,18 +19,31 @@ export default function PostDisplay({post}: {post: Post}) {
             },
             credentials: "include",
         });
+
         const data = await res.json();
-        setLikes(data.likes);
+        console.log("data: ", data);
+
+        if (res.ok) {
+            setLikes(data.likes);
+        }
     }
 
     useEffect(() => {
-
-    }, [likes, setLikes])
+        fetch("http://localhost:7100/post/info/" + post.id)
+        .then((res) => {
+            if (res.ok) {
+                res.json()
+                .then((data) => {
+                    console.log(data);
+                    setLikes(data.likes);
+                })
+            }
+        })
+    }, [setLikes])
 
     return (
         <div className={styles.postContainer}>
             <h3>{post.caption}</h3>
-            <p>@{post.username}</p>
             <Image
                 src={"http://localhost:7100/" + post.imgPath}
                 alt={"Missing image"}
@@ -41,7 +54,7 @@ export default function PostDisplay({post}: {post: Post}) {
                 className={styles.like}
                 onClick={likePost}
             >
-                {likes || 0}<p>❤</p>
+            {likes}<p>❤</p>
             </button>
         </div>
     )
