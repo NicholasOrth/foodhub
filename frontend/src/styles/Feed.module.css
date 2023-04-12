@@ -3,6 +3,7 @@
     flex-direction: row;
     justify-content: space-around;
     row-gap: 5rem;
+    column-gap: 1.5rem;
     flex-wrap: wrap;
 
     width: 70vw;
