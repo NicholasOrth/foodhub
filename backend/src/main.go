@@ -41,9 +41,10 @@ type Post struct {
 }
 
 type Like struct {
-	UserID    uint `gorm:"primaryKey"`
-	PostID    uint `gorm:"primaryKey"`
-	CreatedAt time.Time
+	gorm.Model
+
+	UserID uint 
+	PostID uint
 }
 
 type Credentials struct {
@@ -56,42 +57,6 @@ type Claims struct {
 	Name  string `json:"name"`
 	Email string `json:"email"`
 	jwt.StandardClaims
-}
-
-func (p *Post) Like(userID uint) {
-	u := false
-
-	for i, like := range p.Likes {
-		if like.UserID == userID {
-			p.Likes = append(p.Likes[:i], p.Likes[i+1:]...)
-			u = true
-			break
-		}
-	}
-
-	if !u {
-		p.Likes = append(p.Likes, Like{UserID: userID, PostID: p.ID})
-	}
-}
-
-func Contains(slice []uint, val uint) bool {
-	for _, item := range slice {
-		if item == val {
-			return true
-		}
-	}
-	return false
-}
-
-func RemoveFromSlice(slice []uint, val uint) []uint {
-	// iterate over the slice and copy all elements except u to a new slice
-	var result []uint
-	for _, i := range slice {
-		if i != val {
-			result = append(result, i)
-		}
-	}
-	return result
 }
 
 func HashStr(data string) string {
@@ -390,24 +355,36 @@ func main() {
 			return
 		}
 
-		post.Like(user.ID)
+		var like Like
+		tx := db.Where("user_id = ? AND post_id = ?", user.ID, post.ID).First(&like)
+		if tx.Error != nil {
+			log.Println(tx.Error);
+		}	
 
-		err = db.Save(&post).Error
-		if err != nil {
-			c.AbortWithStatus(http.StatusInternalServerError)
-			return
+		if like.ID != 0 { // If the like exists, delete it
+			err := db.Model(&post).Association("Likes").Delete(&like)
+			if err != nil {
+				log.Println(err)
+				c.AbortWithStatus(http.StatusInternalServerError)
+				return
+			}
+		} else {
+			like := Like{UserID: user.ID, PostID: post.ID}
+			err := db.Model(&post).Association("Likes").Append(&like)
+			if err != nil {
+				log.Println(err)
+				c.AbortWithStatus(http.StatusInternalServerError)
+				return
+			}
 		}
 
+		likes := db.Model(&post).Association("Likes").Count()
+
 		c.JSON(http.StatusOK, gin.H{
-			"likes": len(post.Likes),
+			"likes": likes,
 		})
 	})
 	router.GET("/post/info/:id", func(c *gin.Context) {
-		_, _, err := AuthUser(c, db)
-		if err != nil {
-			return
-		}
-
 		postID, err := strconv.Atoi(c.Param("id"))
 		if err != nil {
 			c.AbortWithStatus(http.StatusBadRequest)
@@ -423,9 +400,11 @@ func main() {
 			return
 		}
 
+		likes := db.Model(&post).Association("Likes").Count()
+
 		c.JSON(http.StatusOK, gin.H{
 			"post":  post,
-			"likes": len(post.Likes),
+			"likes": likes,
 		})
 	})
 

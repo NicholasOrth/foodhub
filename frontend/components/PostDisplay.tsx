@@ -8,6 +8,8 @@ import Cookies from "universal-cookie";
 const cookies = new Cookies();
 
 export default function PostDisplay({post}: {post: Post}) {
+    const [likes, setLikes] = useState(0);
+
     const likePost = async () => {
         const res = await fetch("http://localhost:7100/post/like/" + post.id, {
             method: "POST",
@@ -19,7 +21,25 @@ export default function PostDisplay({post}: {post: Post}) {
         });
 
         const data = await res.json();
+        console.log("data: ", data);
+
+        if (res.ok) {
+            setLikes(data.likes);
+        }
     }
+
+    useEffect(() => {
+        fetch("http://localhost:7100/post/info/" + post.id)
+        .then((res) => {
+            if (res.ok) {
+                res.json()
+                .then((data) => {
+                    console.log(data);
+                    setLikes(data.likes);
+                })
+            }
+        })
+    }, [setLikes])
 
     return (
         <div className={styles.postContainer}>
@@ -34,7 +54,7 @@ export default function PostDisplay({post}: {post: Post}) {
                 className={styles.like}
                 onClick={likePost}
             >
-                {0}<p>❤</p>
+            {likes}<p>❤</p>
             </button>
         </div>
     )
