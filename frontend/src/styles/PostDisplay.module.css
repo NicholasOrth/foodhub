@@ -1,39 +1,55 @@
-.postContainer {
+.container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 1rem;
+  }
+  
+  .postContainer {
+    flex: 1;
+    max-width: 25rem;
+    height: auto;
     display: flex;
     flex-direction: column;
-
     align-items: center;
     justify-content: center;
-
-    max-height: 50%;
-
     border-radius: 0.5rem;
-    background-color: #fff;
-    box-shadow: 0 0 0.5rem rgba(0, 0, 0, 0.3);
-
+    background-color: #ffffff;
+    box-shadow: 0 0 0.5rem rgba(26, 226, 109, 0.3);
     padding: 0.5rem;
-}
-
-.postImage {
+  }
+  
+  .postImage {
     border-radius: 0.5rem;
-}
+    max-width: 100%;
+    height: auto;
+  }
+  
 
 .like {
-    display: flex;
+    /* display: flex;
     flex-direction: row;
     align-items: center;
     justify-content: center;
 
     column-gap: 0.5rem;
 
-    height: 2rem;
+    height: 2rem; this is the height of the like button which is in relation to the height of the post image */
 
-    padding: 0.5rem;
-    background-color: #fff;
-    border: none;
-    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 1rem;
+    
+    
 }
 
 .like p {
-    color: red;
+    margin-left: 0.5;
+    padding: 0.5rem;
+    background-color: #ffff0b;
+    border: none;
+    cursor: pointer;
+    background-color: #ffff0b;
+    color: rgb(0, 0, 0);
 }
