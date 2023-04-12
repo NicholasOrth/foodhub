@@ -8,11 +8,18 @@ import toast from "react-hot-toast";
 const cookies = new Cookies();
 
 export default function New() {
+    const acceptableTypes = ["image/png", "image/jpeg", "image/jpg"];
     const handleSubmit = async (e: any) => {
         e.preventDefault()
+        
+        const file = e.target.file.files[0];
+        if(acceptableTypes.includes(file.type) === false) {
+            toast.error("File type not supported");
+            return;
+        }
 
         const formData = new FormData()
-        formData.append('file', e.target.file.files[0])
+        formData.append('file', file)
         formData.append('caption', e.target.caption.value)
 
         const jwt = cookies.get('jwt');
