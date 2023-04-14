@@ -9,7 +9,7 @@ import (
 	"os"
 )
 
-var jwtKey = []byte(os.Getenv("JWT_KEY"))
+var JwtKey = []byte(os.Getenv("JWT_KEY"))
 
 func main() {
 	log.Println("Starting server...")
