@@ -1,0 +1,43 @@
+.container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    width: 100vw;
+    height: 15rem;
+
+    margin-top: 3rem;
+}
+
+.card {
+    width: 40rem;
+    height: 15rem;
+
+    display: flex;
+
+    justify-content: space-around
+}
+
+.imageContainer {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    width: 20rem;
+}
+
+.imageContainer img {
+    width: 15rem;
+    height: 15rem;
+
+    border-radius: 50%;
+}
+
+.infoContainer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    width: 20rem;
+    height: 15rem;
+}

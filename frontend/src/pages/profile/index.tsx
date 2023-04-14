@@ -3,6 +3,7 @@ import toast from "react-hot-toast";
 import Navbar from "../../../components/Navbar";
 import FeedDisplay from "../../../components/FeedDisplay";
 import Router from "next/router";
+import ProfileView from "../../../components/ProfileView";
 
 export default function Profile(
     props: {data: {email: string, name: string, posts: any[]}})
@@ -19,6 +20,7 @@ export default function Profile(
     return (
         <>
             <Navbar />
+            <ProfileView user={props.data} />
             <FeedDisplay posts={props.data.posts} />
             <button onClick={() => { logout(); }}>Logout</button>
         </>

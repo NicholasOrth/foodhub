@@ -1,0 +1,24 @@
+
+import Image from "next/image";
+
+import styles from "../src/styles/ProfileView.module.css"
+
+export default function ProfileView(props: { user: any } ) {
+
+    return (
+        <div className={styles.container}>
+            <div className={styles.card}>
+                <div className={styles.imageContainer}>
+                    <Image src="https://i.imgur.com/3X4X1YQ.png" alt="profile" width={300} height={300}/>
+                </div>
+
+                <div className={styles.infoContainer}>
+                    <h1>@{"placeholder"}</h1>
+                    <p>{0} followers</p>
+                    <p>{0} following</p>
+                    <p>{0} posts</p>
+                </div>
+            </div>
+        </div>
+    )
+}
