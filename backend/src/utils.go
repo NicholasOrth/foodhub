@@ -47,7 +47,7 @@ func AuthUser(c *gin.Context, db *gorm.DB) (User, Claims, error) {
 
 	token, err := jwt.ParseWithClaims(cookie, claims,
 		func(token *jwt.Token) (interface{}, error) {
-			return jwtKey, nil
+			return JwtKey, nil
 		})
 
 	if err != nil || !token.Valid {
