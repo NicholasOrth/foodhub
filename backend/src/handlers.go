@@ -27,11 +27,26 @@ func userMe(c *gin.Context) {
 		return
 	}
 
+	var followers []Follow
+	err = db.Where("user_id = ?", user.ID).Find(&followers).Error
+	if err != nil {
+		c.AbortWithStatus(http.StatusInternalServerError)
+		return
+	}
+
+	var following []Follow
+	err = db.Where("follower_id = ?", user.ID).Find(&following).Error
+	if err != nil {
+		c.AbortWithStatus(http.StatusInternalServerError)
+		return
+	}
+
 	c.Header("Content-Type", "application/json")
 	c.JSON(http.StatusOK, gin.H{
-		"email": user.Email,
-		"name":  user.Name,
-		"posts": posts,
+		"name":      user.Name,
+		"followers": len(followers),
+		"following": len(following),
+		"posts":     posts,
 	})
 }
 func userPosts(c *gin.Context) {

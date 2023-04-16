@@ -6,13 +6,20 @@ import Router from "next/router";
 import ProfileView from "../../../components/ProfileView";
 
 export default function Profile(
-    props: {data: {email: string, name: string, posts: any[]}})
-{
+    props: {data: {
+        name: string,
+        followers: number,
+        following: number,
+        posts: any[],
+    }}
+) {
     const logout = async () => {
         await fetch("http://localhost:7100/auth/logout", {
             method: "POST",
             credentials: "include",
         })
+
+        toast.success("Logged out successfully");
 
         await Router.push("/auth/login");
     };
@@ -20,7 +27,12 @@ export default function Profile(
     return (
         <>
             <Navbar />
-            <ProfileView user={props.data} />
+            <ProfileView
+                name={props.data.name}
+                following={props.data.following}
+                followers={props.data.followers}
+                postCount={props.data.posts.length}
+            />
             <FeedDisplay posts={props.data.posts} />
             <button onClick={() => { logout(); }}>Logout</button>
         </>
@@ -63,7 +75,12 @@ export async function getServerSideProps(ctx: GetServerSidePropsContext) {
 
 
 
-    const data: {email: string, name: string, posts: any[]} = await res.json();
+    const data: {
+        name: string,
+        followers: number,
+        following: number,
+        posts: any[],
+    } = await res.json();
 
     return {
         props: {

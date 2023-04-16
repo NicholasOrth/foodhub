@@ -3,8 +3,14 @@ import Image from "next/image";
 
 import styles from "../src/styles/ProfileView.module.css"
 
-export default function ProfileView(props: { user: any } ) {
-
+export default function ProfileView(
+    props: {
+        name: string,
+        followers: number,
+        following: number,
+        postCount: number
+    }
+) {
     return (
         <div className={styles.container}>
             <div className={styles.card}>
@@ -13,10 +19,10 @@ export default function ProfileView(props: { user: any } ) {
                 </div>
 
                 <div className={styles.infoContainer}>
-                    <h1>@{"placeholder"}</h1>
-                    <p>{0} followers</p>
-                    <p>{0} following</p>
-                    <p>{0} posts</p>
+                    <h1>@{props.name}</h1>
+                    <p>{props.followers} followers</p>
+                    <p>{props.following} following</p>
+                    <p>{props.postCount} posts</p>
                 </div>
             </div>
         </div>
