@@ -35,28 +35,104 @@ func userMe(c *gin.Context) {
 	})
 }
 func userPosts(c *gin.Context) {
-	user, _, err := AuthUser(c, db)
+	id, err := strconv.Atoi(c.Param("id"))
+
 	if err != nil {
+		c.AbortWithStatus(http.StatusBadRequest)
+		return
+	}
+
+	var user User
+	res := db.First(&user, id)
+	if res.Error != nil {
+		c.AbortWithStatus(http.StatusNotFound)
 		return
 	}
 
 	var posts []Post
-
 	err = db.Model(&user).Association("Posts").Find(&posts)
+
+	if err != nil {
+		c.AbortWithStatus(http.StatusInternalServerError)
+		return
+	}
+
+	c.Header("Content-Type", "application/json")
+	c.JSON(http.StatusOK, gin.H{
+		"posts": posts,
+	})
+}
+func userInfo(c *gin.Context) {
+	id, err := strconv.Atoi(c.Param("id"))
+
+	if err != nil {
+		c.AbortWithStatus(http.StatusBadRequest)
+		return
+	}
+
+	var user User
+	res := db.First(&user, id)
+	if res.Error != nil {
+		c.AbortWithStatus(http.StatusNotFound)
+		return
+	}
+
+	var followers []Follow
+	err = db.Where("user_id = ?", user.ID).Find(&followers).Error
+	if err != nil {
+		c.AbortWithStatus(http.StatusInternalServerError)
+		return
+	}
+
+	var following []Follow
+	err = db.Where("follower_id = ?", user.ID).Find(&following).Error
 	if err != nil {
 		c.AbortWithStatus(http.StatusInternalServerError)
 		return
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"posts": posts,
+		"id":        user.ID,
+		"name":      user.Name,
+		"followers": len(followers),
+		"following": len(following),
 	})
 }
-func userInfo(c *gin.Context) {
 
-}
 func followUser(c *gin.Context) {
+	user, _, err := AuthUser(c, db)
+	if err != nil {
+		return
+	}
 
+	id, err := strconv.Atoi(c.Param("id"))
+
+	if err != nil {
+		c.AbortWithStatus(http.StatusBadRequest)
+		return
+	}
+
+	var userToFollow User
+	res := db.First(&userToFollow, id)
+	if res.Error != nil {
+		c.AbortWithStatus(http.StatusNotFound)
+		return
+	}
+
+	follow := Follow{
+		UserID:     userToFollow.ID,
+		FollowerID: user.ID,
+	}
+
+	res = db.Create(&follow)
+	if res.Error != nil {
+		c.AbortWithStatus(http.StatusInternalServerError)
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"message": "followed user",
+	})
 }
 
 /* Auth Routes */

@@ -19,13 +19,13 @@ func main() {
 		log.Fatalln("Error loading .env file")
 	}
 
-	dbInit()
+	dbInit(true)
 
 	// gin web server
 	router := gin.Default()
 
 	router.Use(cors.New(cors.Config{
-		AllowOrigins:     []string{"http://localhost:3000", "http://localhost:3001", "http://66.42.124.162:3000"},
+		AllowOrigins:     []string{"http://localhost:3000", "http://localhost:3001"},
 		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE"},
 		AllowHeaders:     []string{"Origin", "Content-Type"},
 		AllowCredentials: true,
@@ -41,9 +41,9 @@ func main() {
 	})
 
 	router.GET("/user/me", userMe)
-	router.GET("/user/posts", userPosts)
+	router.GET("/user/:id/posts", userPosts)
 	router.GET("/user/:id", userInfo)
-	router.POST("/user/follow/:id", followUser)
+	router.POST("/user/:id/follow", followUser)
 
 	router.POST("/auth/login", login)
 	router.POST("/auth/signup", signup)

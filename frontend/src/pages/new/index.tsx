@@ -13,7 +13,7 @@ export default function New() {
         e.preventDefault()
         
         const file = e.target.file.files[0];
-        if(acceptableTypes.includes(file.type) === false) {
+        if(!acceptableTypes.includes(file.type)) {
             toast.error("File type not supported");
             return;
         }
@@ -33,8 +33,6 @@ export default function New() {
                 body: formData,
                 credentials: 'include'
             })
-
-            const data = await res.json()
 
             if (res.ok) {
                 toast.success('Post posted!')

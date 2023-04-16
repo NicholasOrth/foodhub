@@ -1,13 +1,21 @@
 package main
 
 import (
+	"database/sql"
 	"github.com/golang-jwt/jwt"
-	"gorm.io/gorm"
 	"time"
 )
 
+type JsonModel struct {
+	ID        uint         `gorm:"primarykey" json:"id"`
+	CreatedAt time.Time    `json:"createdAt"`
+	UpdatedAt time.Time    `json:"updatedAt"`
+	DeletedAt sql.NullTime `gorm:"index" json:"deletedAt"`
+}
+
 type User struct {
-	gorm.Model
+	JsonModel
+
 	Name     string `json:"name" gorm:"unique"`
 	Email    string `json:"email" gorm:"unique"`
 	Password string `json:"password"`
@@ -16,10 +24,7 @@ type User struct {
 }
 
 type Post struct {
-	ID        uint      `gorm:"primarykey" json:"id"`
-	CreatedAt time.Time `json:"createdAt"`
-	UpdatedAt time.Time `json:"updatedAt"`
-	DeletedAt time.Time `gorm:"index" json:"deletedAt"`
+	JsonModel
 
 	UserID  uint   `json:"userId"`
 	Caption string `json:"caption"`
@@ -29,10 +34,17 @@ type Post struct {
 }
 
 type Like struct {
-	gorm.Model
+	JsonModel
 
 	UserID uint
 	PostID uint
+}
+
+type Follow struct {
+	JsonModel
+
+	UserID     uint // user being followed
+	FollowerID uint // user following
 }
 
 type Credentials struct {
