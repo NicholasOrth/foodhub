@@ -1,6 +1,7 @@
-package main
+package test
 
 import (
+	"backend/src"
 	"bytes"
 	"encoding/json"
 	"net/http"
@@ -17,7 +18,7 @@ import (
 // test the hash function
 func TestHashStr(t *testing.T) {
 	passwordTest := "TestPassword11@@"
-	hashed := HashStr(passwordTest)
+	hashed := main.HashStr(passwordTest)
 	err := bcrypt.CompareHashAndPassword([]byte(hashed), []byte(passwordTest))
 	if err != nil {
 		t.Errorf("Hashed password does not match")
@@ -61,7 +62,7 @@ func TestHashStr(t *testing.T) {
 // handeler for testing GET request
 func getUsersHandler(w http.ResponseWriter, r *http.Request) {
 	// retrieve list of users from database
-	users := []User{{Name: "Nick"}, {Name: "Larry"}}
+	users := []main.User{{Name: "Nick"}, {Name: "Larry"}}
 
 	// encode users as JSON and write to response
 	json.NewEncoder(w).Encode(users)
@@ -82,7 +83,7 @@ func TestGetUsers(t *testing.T) {
 	defer resp.Body.Close()
 
 	// decode response JSON into slice of User objects
-	var users []User
+	var users []main.User
 	err = json.NewDecoder(resp.Body).Decode(&users)
 	if err != nil {
 		t.Fatalf("Error decoding response JSON: %v", err)
@@ -100,12 +101,12 @@ func TestGetUsers(t *testing.T) {
 	}
 }
 
-var users []User
+var users []main.User
 
 // handeler for testing POST request
 func createUserHandler(w http.ResponseWriter, r *http.Request) {
 	// decode JSON request body into User object
-	var user User
+	var user main.User
 	err := json.NewDecoder(r.Body).Decode(&user)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
@@ -127,7 +128,7 @@ func TestCreateUser(t *testing.T) {
 	defer server.Close()
 
 	// create new user object
-	newUser := User{Name: "Charlie"}
+	newUser := main.User{Name: "Charlie"}
 
 	// encode user as JSON
 	requestBody, err := json.Marshal(newUser)
@@ -148,14 +149,14 @@ func TestCreateUser(t *testing.T) {
 	}
 
 	// decode response JSON into User object
-	var createdUser User
+	var createdUser main.User
 	err = json.NewDecoder(resp.Body).Decode(&createdUser)
 	if err != nil {
 		t.Fatalf("Error decoding response JSON: %v", err)
 	}
 
 	// verify that the created user matches the expected user
-	expectedUser := User{Name: "Nick"}
+	expectedUser := main.User{Name: "Nick"}
 	if createdUser.ID != expectedUser.ID {
 		t.Fatalf("Expected created user to be %+v, but got %+v", expectedUser.ID, createdUser.ID)
 	}
@@ -166,16 +167,16 @@ func TestAuthUser(t *testing.T) {
 	db, err := gorm.Open(sqlite.Open("test.sqlite"), &gorm.Config{})
 
 	// add test user to database
-	user := User{
+	user := main.User{
 		Name: "Nick",
 	}
 	db.Create(&user)
 
 	// set up test context with JWT cookie
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, Claims{
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, main.Claims{
 		ID: user.ID,
 	})
-	jwtCookie, _ := token.SignedString(jwtKey)
+	jwtCookie, _ := token.SignedString(main.JwtKey)
 	req, _ := http.NewRequest("GET", "/", nil)
 	req.AddCookie(&http.Cookie{Name: "jwt", Value: jwtCookie})
 	w := httptest.NewRecorder()
@@ -183,7 +184,7 @@ func TestAuthUser(t *testing.T) {
 	c.Request = req
 
 	// call AuthUser function with test context and database
-	authUser, claims, err := AuthUser(c, db)
+	authUser, claims, err := main.AuthUser(c, db)
 
 	if err != nil {
 		//t.Fatalf("Error authenticating user: %v", err)
