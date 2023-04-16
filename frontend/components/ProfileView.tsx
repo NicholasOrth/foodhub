@@ -15,7 +15,7 @@ export default function ProfileView(
         <div className={styles.container}>
             <div className={styles.card}>
                 <div className={styles.imageContainer}>
-                    <Image src="https://i.imgur.com/3X4X1YQ.png" alt="profile" width={300} height={300}/>
+                    <Image src="http://localhost:7100/images/test.jpg" alt="profile" width={300} height={300}/>
                 </div>
 
                 <div className={styles.infoContainer}>
