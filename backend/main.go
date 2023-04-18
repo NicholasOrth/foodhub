@@ -70,6 +70,7 @@ func main() {
 	protected := router.Group("/")
 	protected.Use(Authentication())
 	protected.POST("/user/:id/follow", followUser)
+	protected.POST("/user/:id/block", blockUser)
 	protected.GET("/feed", feed)
 	protected.POST("/post/create", createPost)
 	protected.POST("/post/delete/:id", deletePost)

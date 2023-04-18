@@ -171,6 +171,52 @@ func followUser(c *gin.Context) {
 		"message": "followed user",
 	})
 }
+func blockUser(c *gin.Context) {
+	session := sessions.Default(c)
+	uid := session.Get("uid")
+
+	if uid == nil {
+		log.Println("Unauthorized access")
+		c.AbortWithStatus(401)
+		return
+	}
+
+	var user User
+	res := db.First(&user, uid.(uint))
+	if res.Error != nil {
+		c.AbortWithStatus(http.StatusNotFound)
+		return
+	}
+
+	id, err := strconv.Atoi(c.Param("id"))
+
+	if err != nil {
+		c.AbortWithStatus(http.StatusBadRequest)
+		return
+	}
+
+	var userToBlock User
+	res = db.First(&userToBlock, id)
+	if res.Error != nil {
+		c.AbortWithStatus(http.StatusNotFound)
+		return
+	}
+
+	block := Block{
+		UserID:    userToBlock.ID,
+		BlockerID: user.ID,
+	}
+
+	res = db.Create(&block)
+	if res.Error != nil {
+		c.AbortWithStatus(http.StatusInternalServerError)
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"message": "followed user",
+	})
+}
 
 /* Auth Routes */
 func login(c *gin.Context) {

@@ -2,8 +2,9 @@ package main
 
 import (
 	"database/sql"
-	"github.com/golang-jwt/jwt"
 	"time"
+
+	"github.com/golang-jwt/jwt"
 )
 
 type JsonModel struct {
@@ -45,6 +46,13 @@ type Follow struct {
 
 	UserID     uint // user being followed
 	FollowerID uint // user following
+}
+
+type Block struct {
+	JsonModel
+
+	UserID    uint // user being blocked
+	BlockerID uint // user blocking
 }
 
 type Credentials struct {
