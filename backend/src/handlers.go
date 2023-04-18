@@ -1,15 +1,14 @@
 package main
 
 import (
+	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
-	"github.com/golang-jwt/jwt"
 	"golang.org/x/crypto/bcrypt"
 	"log"
 	"net/http"
 	"os"
 	"path/filepath"
 	"strconv"
-	"time"
 )
 
 /* User Routes */
@@ -152,6 +151,16 @@ func followUser(c *gin.Context) {
 
 /* Auth Routes */
 func login(c *gin.Context) {
+	session := sessions.Default(c)
+
+	uid := session.Get("uid")
+
+	if uid != nil {
+		c.JSON(http.StatusOK, gin.H{
+			"message": "already logged in",
+		})
+	}
+
 	var creds Credentials
 
 	// Get the JSON body and decode into credentials
@@ -181,38 +190,49 @@ func login(c *gin.Context) {
 		return
 	}
 
-	// If authentication is successful, generate a token
-	expiration := time.Now().Add(time.Hour).Unix()
+	//// If authentication is successful, generate a token
+	//expiration := time.Now().Add(time.Hour).Unix()
+	//
+	//claims := &Claims{
+	//	ID:    query.ID,
+	//	Name:  query.Name,
+	//	Email: query.Email,
+	//	StandardClaims: jwt.StandardClaims{
+	//		ExpiresAt: expiration,
+	//	},
+	//}
+	//
+	//token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	//tokenString, err := token.SignedString(JwtKey)
+	//if err != nil {
+	//	c.AbortWithStatus(http.StatusInternalServerError)
+	//	return
+	//}
+	//
+	//c.Header("Content-Type", "application/json")
+	//c.SetCookie(
+	//	"jwt",
+	//	tokenString,
+	//	3600,
+	//	"/",
+	//	"localhost",
+	//	false,
+	//	true)
 
-	claims := &Claims{
-		ID:    query.ID,
-		Name:  query.Name,
-		Email: query.Email,
-		StandardClaims: jwt.StandardClaims{
-			ExpiresAt: expiration,
-		},
-	}
+	session.Set("uid", query.ID)
+	session.Set("email", query.Email)
+	err = session.Save()
 
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	tokenString, err := token.SignedString(JwtKey)
 	if err != nil {
 		c.AbortWithStatus(http.StatusInternalServerError)
 		return
 	}
 
-	c.Header("Content-Type", "application/json")
-	c.SetCookie(
-		"jwt",
-		tokenString,
-		3600,
-		"/",
-		"localhost",
-		false,
-		true)
 	c.JSON(http.StatusOK, gin.H{
 		"message": "success",
 	})
 }
+
 func signup(c *gin.Context) {
 	/*
 		path the user struct name, email, and password extract
@@ -240,14 +260,21 @@ func signup(c *gin.Context) {
 	c.JSON(http.StatusOK, nil)
 }
 func logout(c *gin.Context) {
-	c.SetCookie(
-		"jwt",
-		"",
-		-1,
-		"/",
-		"localhost",
-		false,
-		true)
+	//c.SetCookie(
+	//	"jwt",
+	//	"",
+	//	-1,
+	//	"/",
+	//	"localhost",
+	//	false,
+	//	true)
+	//c.JSON(http.StatusOK, gin.H{
+	//	"message": "success",
+	//})
+
+	session := sessions.Default(c)
+	session.Clear()
+	session.Save()
 	c.JSON(http.StatusOK, gin.H{
 		"message": "success",
 	})
@@ -376,14 +403,14 @@ func postInfo(c *gin.Context) {
 
 /* Feed Routes */
 func feed(c *gin.Context) {
-	_, _, err := AuthUser(c, db)
-	if err != nil {
-		return
-	}
+	//_, _, err := AuthUser(c, db)
+	//if err != nil {
+	//	return
+	//}
 
 	var posts []Post
 
-	err = db.Order("created_at").Find(&posts).Limit(10).Error
+	err := db.Order("created_at").Find(&posts).Limit(10).Error
 	if err != nil {
 		c.AbortWithStatus(http.StatusInternalServerError)
 		return
