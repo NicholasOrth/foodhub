@@ -2,9 +2,8 @@ import Router from "next/router"
 import toast from "react-hot-toast"
 
 import styles from "../../../styles/Signup.module.css"
-import {GetServerSidePropsContext} from "next";
 
-export default function Register() {
+export default function Signup() {
 
     const handleSubmit = async (e: any) => {
         e.preventDefault();
@@ -84,21 +83,4 @@ export default function Register() {
             </button>
         </div>
     )
-}
-
-export async function getServerSideProps(ctx: GetServerSidePropsContext) {
-    const jwt = ctx.req.cookies.jwt;
-
-    if (jwt) {
-        return {
-            redirect: {
-                destination: "/profile",
-                permanent: false,
-            }
-        }
-    }
-
-    return {
-        props: {}
-    }
 }
