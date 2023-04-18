@@ -29,6 +29,10 @@ func main() {
 	store, err :=
 		redis.NewStore(10, "tcp", "localhost:6379", "", []byte("secret"))
 
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	store.Options(sessions.Options{
 		Path:     "/",
 		MaxAge:   60 * 60,
@@ -36,10 +40,6 @@ func main() {
 		Secure:   false,
 		SameSite: http.SameSiteDefaultMode,
 	})
-
-	if err != nil {
-		log.Fatal(err)
-	}
 
 	router.Use(sessions.Sessions("session", store))
 
