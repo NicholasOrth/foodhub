@@ -2,7 +2,6 @@ package main
 
 import (
 	"database/sql"
-	"github.com/golang-jwt/jwt"
 	"time"
 )
 
@@ -50,11 +49,4 @@ type Follow struct {
 type Credentials struct {
 	Email    string `json:"email"`
 	Password string `json:"password"`
-}
-
-type Claims struct {
-	ID    uint   `json:"id"`
-	Name  string `json:"name"`
-	Email string `json:"email"`
-	jwt.StandardClaims
 }

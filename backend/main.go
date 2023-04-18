@@ -1,18 +1,14 @@
 package main
 
 import (
-	"log"
-	"net/http"
-	"os"
-
 	"github.com/gin-contrib/cors"
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-contrib/sessions/redis"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
+	"log"
+	"net/http"
 )
-
-var JwtKey = []byte(os.Getenv("JWT_KEY"))
 
 func main() {
 	log.Println("Starting server...")
@@ -70,6 +66,7 @@ func main() {
 	protected := router.Group("/")
 	protected.Use(Authentication())
 	protected.POST("/user/:id/follow", followUser)
+	protected.POST("/user/:id/following", userFollowing)
 	protected.GET("/feed", feed)
 	protected.POST("/post/create", createPost)
 	protected.POST("/post/delete/:id", deletePost)
