@@ -1,14 +1,15 @@
 package main
 
 import (
+	"log"
+	"net/http"
+	"os"
+
 	"github.com/gin-contrib/cors"
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-contrib/sessions/redis"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
-	"log"
-	"net/http"
-	"os"
 )
 
 var JwtKey = []byte(os.Getenv("JWT_KEY"))
@@ -71,6 +72,7 @@ func main() {
 	protected.POST("/user/:id/follow", followUser)
 	protected.GET("/feed", feed)
 	protected.POST("/post/create", createPost)
+	protected.POST("/post/delete/:id", deletePost)
 	protected.POST("/post/like/:id", likePost)
 	protected.GET("/user/me", userMe)
 

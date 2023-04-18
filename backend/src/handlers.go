@@ -1,14 +1,15 @@
 package main
 
 import (
-	"github.com/gin-contrib/sessions"
-	"github.com/gin-gonic/gin"
-	"golang.org/x/crypto/bcrypt"
 	"log"
 	"net/http"
 	"os"
 	"path/filepath"
 	"strconv"
+
+	"github.com/gin-contrib/sessions"
+	"github.com/gin-gonic/gin"
+	"golang.org/x/crypto/bcrypt"
 )
 
 /* User Routes */
@@ -324,6 +325,50 @@ func createPost(c *gin.Context) {
 		"message": "success",
 	})
 }
+func deletePost(c *gin.Context) {
+	session := sessions.Default(c)
+	uid := session.Get("uid")
+
+	if uid == nil {
+		log.Println("Unauthorized access")
+		c.AbortWithStatus(401)
+		return
+	}
+
+	var user User
+	res := db.First(&user, uid.(uint))
+	if res.Error != nil {
+		c.AbortWithStatus(http.StatusNotFound)
+		return
+	}
+
+	postID := c.Param("id")
+
+	var post Post
+	err := db.Where("id = ? AND user_id = ?", postID, user.ID).First(&post).Error
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{
+			"message": "post not found",
+		})
+		return
+	}
+
+	err = os.Remove(post.ImgPath)
+	if err != nil {
+		log.Println(err)
+	}
+
+	err = db.Delete(&post).Error
+	if err != nil {
+		c.AbortWithStatus(http.StatusInternalServerError)
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"message": "success",
+	})
+}
+
 func likePost(c *gin.Context) {
 	session := sessions.Default(c)
 	uid := session.Get("uid")
