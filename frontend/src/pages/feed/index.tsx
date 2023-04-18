@@ -1,55 +1,28 @@
-import {GetServerSidePropsContext} from "next";
 import {Post} from "../../../types/Post";
 
 import Navbar from "../../../components/Navbar";
 
 import FeedDisplay from "../../../components/FeedDisplay";
+import {useEffect, useState} from "react";
 
-export default function Feed(props: any) {
+export default function Feed() {
+    const [posts, setPosts] = useState<any>([]);
+
+    useEffect(() => {
+        fetch("http://localhost:7100/feed", {
+            method: "GET",
+            credentials: "include",
+        })
+            .then(res => res.json())
+            .then(data => {
+                setPosts(data.posts);
+            })
+    }, [])
+
     return (
         <>
             <Navbar />
-            <FeedDisplay posts={props.data.posts} />
+            {posts && <FeedDisplay posts={posts} />}
         </>
     )
 }
-
-export async function getServerSideProps(ctx: GetServerSidePropsContext) {
-    const jwt = ctx.req.cookies.jwt;
-
-    if (!jwt) {
-        return {
-            redirect: {
-                destination: "/",
-                permanent: false,
-            }
-        }
-    }
-
-    const res: Response = await fetch("http://localhost:7100/feed", {
-        method: "GET",
-        headers: {
-            "Content-Type": "application/json",
-            "Cookie": "jwt=" + jwt,
-        },
-        credentials: "include",
-    })
-
-    try {
-        const data: { posts: Post[] } = await res.json();
-        return {
-            props: {
-                data
-            }
-        }
-    } catch (e) {
-        return {
-            props: {
-                posts: [],
-            }
-        }
-    }
-}
-
-
-

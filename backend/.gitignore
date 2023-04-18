@@ -9,3 +9,5 @@ main
 .idea/
 
 images
+
+*.rdb

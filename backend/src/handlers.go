@@ -13,14 +13,25 @@ import (
 
 /* User Routes */
 func userMe(c *gin.Context) {
-	user, _, err := AuthUser(c, db)
-	if err != nil {
+	session := sessions.Default(c)
+	uid := session.Get("uid")
+
+	if uid == nil {
+		log.Println("Unauthorized access")
+		c.AbortWithStatus(401)
+		return
+	}
+
+	var user User
+	res := db.First(&user, uid.(uint))
+	if res.Error != nil {
+		c.AbortWithStatus(http.StatusNotFound)
 		return
 	}
 
 	var posts []Post
 
-	err = db.Model(&user).Association("Posts").Find(&posts)
+	err := db.Model(&user).Association("Posts").Find(&posts)
 	if err != nil {
 		c.AbortWithStatus(http.StatusInternalServerError)
 		return
@@ -114,8 +125,19 @@ func userInfo(c *gin.Context) {
 }
 
 func followUser(c *gin.Context) {
-	user, _, err := AuthUser(c, db)
-	if err != nil {
+	session := sessions.Default(c)
+	uid := session.Get("uid")
+
+	if uid == nil {
+		log.Println("Unauthorized access")
+		c.AbortWithStatus(401)
+		return
+	}
+
+	var user User
+	res := db.First(&user, uid.(uint))
+	if res.Error != nil {
+		c.AbortWithStatus(http.StatusNotFound)
 		return
 	}
 
@@ -127,7 +149,7 @@ func followUser(c *gin.Context) {
 	}
 
 	var userToFollow User
-	res := db.First(&userToFollow, id)
+	res = db.First(&userToFollow, id)
 	if res.Error != nil {
 		c.AbortWithStatus(http.StatusNotFound)
 		return
@@ -184,45 +206,15 @@ func login(c *gin.Context) {
 		c.AbortWithStatus(http.StatusUnauthorized)
 		return
 	}
+
 	err := bcrypt.CompareHashAndPassword([]byte(query.Password), []byte(creds.Password))
 	if err != nil {
 		c.AbortWithStatus(http.StatusUnauthorized)
 		return
 	}
 
-	//// If authentication is successful, generate a token
-	//expiration := time.Now().Add(time.Hour).Unix()
-	//
-	//claims := &Claims{
-	//	ID:    query.ID,
-	//	Name:  query.Name,
-	//	Email: query.Email,
-	//	StandardClaims: jwt.StandardClaims{
-	//		ExpiresAt: expiration,
-	//	},
-	//}
-	//
-	//token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	//tokenString, err := token.SignedString(JwtKey)
-	//if err != nil {
-	//	c.AbortWithStatus(http.StatusInternalServerError)
-	//	return
-	//}
-	//
-	//c.Header("Content-Type", "application/json")
-	//c.SetCookie(
-	//	"jwt",
-	//	tokenString,
-	//	3600,
-	//	"/",
-	//	"localhost",
-	//	false,
-	//	true)
-
 	session.Set("uid", query.ID)
-	session.Set("email", query.Email)
 	err = session.Save()
-
 	if err != nil {
 		c.AbortWithStatus(http.StatusInternalServerError)
 		return
@@ -260,21 +252,12 @@ func signup(c *gin.Context) {
 	c.JSON(http.StatusOK, nil)
 }
 func logout(c *gin.Context) {
-	//c.SetCookie(
-	//	"jwt",
-	//	"",
-	//	-1,
-	//	"/",
-	//	"localhost",
-	//	false,
-	//	true)
-	//c.JSON(http.StatusOK, gin.H{
-	//	"message": "success",
-	//})
-
 	session := sessions.Default(c)
 	session.Clear()
-	session.Save()
+	err := session.Save()
+	if err != nil {
+		return
+	}
 	c.JSON(http.StatusOK, gin.H{
 		"message": "success",
 	})
@@ -282,7 +265,21 @@ func logout(c *gin.Context) {
 
 /* Post Routes */
 func createPost(c *gin.Context) {
-	user, _, err := AuthUser(c, db)
+	session := sessions.Default(c)
+	uid := session.Get("uid")
+
+	if uid == nil {
+		log.Println("Unauthorized access")
+		c.AbortWithStatus(401)
+		return
+	}
+
+	var user User
+	res := db.First(&user, uid.(uint))
+	if res.Error != nil {
+		c.AbortWithStatus(http.StatusNotFound)
+		return
+	}
 
 	caption := c.PostForm("caption")
 
@@ -328,8 +325,19 @@ func createPost(c *gin.Context) {
 	})
 }
 func likePost(c *gin.Context) {
-	user, _, err := AuthUser(c, db)
-	if err != nil {
+	session := sessions.Default(c)
+	uid := session.Get("uid")
+
+	if uid == nil {
+		log.Println("Unauthorized access")
+		c.AbortWithStatus(401)
+		return
+	}
+
+	var user User
+	res := db.First(&user, uid.(uint))
+	if res.Error != nil {
+		c.AbortWithStatus(http.StatusNotFound)
 		return
 	}
 
@@ -340,7 +348,7 @@ func likePost(c *gin.Context) {
 	}
 
 	var post Post
-	res := db.First(&post, postID)
+	res = db.First(&post, postID)
 
 	if res.Error != nil {
 		log.Println(res.Error)
@@ -403,11 +411,6 @@ func postInfo(c *gin.Context) {
 
 /* Feed Routes */
 func feed(c *gin.Context) {
-	//_, _, err := AuthUser(c, db)
-	//if err != nil {
-	//	return
-	//}
-
 	var posts []Post
 
 	err := db.Order("created_at").Find(&posts).Limit(10).Error
