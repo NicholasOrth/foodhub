@@ -5,6 +5,7 @@ import Router from "next/router";
 import Navbar from "../../../components/Navbar";
 import styles from "@/styles/New.module.css";
 import toast from "react-hot-toast";
+import {useEffect} from "react";
 const cookies = new Cookies();
 
 export default function New() {
@@ -44,6 +45,17 @@ export default function New() {
         }
     }
 
+    useEffect(() => {
+        fetch("http://localhost:7100/user/me", {
+            method: "GET",
+            credentials: "include",
+        }).then(res => {
+            if (!res.ok) {
+                Router.push('/auth/login')
+            }
+        })
+    }, [])
+
     return (
         <>
             <Navbar />
@@ -65,21 +77,4 @@ export default function New() {
             </div>
         </>
     )
-}
-
-export async function getServerSideProps(ctx: GetServerSidePropsContext) {
-    const jwt = ctx.req.cookies.jwt;
-
-    if (!jwt) {
-        return {
-            redirect: {
-                destination: "/",
-                permanent: false,
-            }
-        }
-    }
-
-    return {
-        props: {}
-    }
 }
