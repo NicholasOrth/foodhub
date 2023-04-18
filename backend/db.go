@@ -15,7 +15,7 @@ func dbInit(useSqlite bool) {
 	var err error
 
 	if useSqlite {
-		db, err = gorm.Open(sqlite.Open("test.db"), &gorm.Config{})
+		db, err = gorm.Open(sqlite.Open("test.sqlite"), &gorm.Config{})
 	} else {
 		db, err = gorm.Open(mysql.Open(dsn), &gorm.Config{})
 		if err != nil {

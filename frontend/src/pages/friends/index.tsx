@@ -1,6 +1,6 @@
 import Navbar from "../../../components/Navbar";
 
-export default function FriendsPage(props: any) {
+export default function FriendsPage() {
     return (
         <>
             <Navbar />

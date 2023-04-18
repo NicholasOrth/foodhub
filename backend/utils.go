@@ -1,12 +1,8 @@
 package main
 
 import (
-	"github.com/gin-gonic/gin"
-	"github.com/golang-jwt/jwt"
 	"golang.org/x/crypto/bcrypt"
-	"gorm.io/gorm"
 	"log"
-	"net/http"
 )
 
 /*func AddFollower(user User, target User) {
@@ -35,38 +31,39 @@ func HashStr(data string) string {
 	return string(hashedData)
 }
 
-func AuthUser(c *gin.Context, db *gorm.DB) (User, Claims, error) {
-	cookie, err := c.Cookie("jwt")
-	if err != nil {
-		log.Println("No cookie found.")
-		c.AbortWithStatus(http.StatusUnauthorized)
-		return User{}, Claims{}, err
-	}
-
-	claims := &Claims{}
-
-	token, err := jwt.ParseWithClaims(cookie, claims,
-		func(token *jwt.Token) (interface{}, error) {
-			return JwtKey, nil
-		})
-
-	if err != nil || !token.Valid {
-		log.Println("Invalid token.")
-		c.AbortWithStatus(http.StatusUnauthorized)
-		return User{}, Claims{}, err
-	}
-
-	var user User
-	res := db.First(&user, claims.ID)
-
-	if res.Error != nil {
-		log.Println(res.Error)
-		c.AbortWithStatus(http.StatusInternalServerError)
-		return User{}, Claims{}, res.Error
-	}
-
-	return user, *claims, nil
-}
+//
+//func AuthUser(c *gin.Context, db *gorm.DB) (User, Claims, error) {
+//	cookie, err := c.Cookie("jwt")
+//	if err != nil {
+//		log.Println("No cookie found.")
+//		c.AbortWithStatus(http.StatusUnauthorized)
+//		return User{}, Claims{}, err
+//	}
+//
+//	claims := &Claims{}
+//
+//	token, err := jwt.ParseWithClaims(cookie, claims,
+//		func(token *jwt.Token) (interface{}, error) {
+//			return backend.JwtKey, nil
+//		})
+//
+//	if err != nil || !token.Valid {
+//		log.Println("Invalid token.")
+//		c.AbortWithStatus(http.StatusUnauthorized)
+//		return User{}, Claims{}, err
+//	}
+//
+//	var user User
+//	res := db.First(&user, claims.ID)
+//
+//	if res.Error != nil {
+//		log.Println(res.Error)
+//		c.AbortWithStatus(http.StatusInternalServerError)
+//		return User{}, Claims{}, res.Error
+//	}
+//
+//	return user, *claims, nil
+//}
 
 func Contains(slice []uint, val uint) bool {
 	for _, item := range slice {
