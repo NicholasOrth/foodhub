@@ -274,7 +274,13 @@ func signup(c *gin.Context) {
 		return
 	}
 
-	res := db.Create(&User{
+	res := db.Where("email = ?", user.Email).First(&user)
+	if res.Error == nil {
+		c.AbortWithStatus(http.StatusConflict)
+		return
+	}
+
+	res = db.Create(&User{
 		Name:     user.Name,
 		Email:    user.Email,
 		Password: HashStr(user.Password),
