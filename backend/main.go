@@ -40,6 +40,8 @@ func main() {
 
 	router.Use(sessions.Sessions("session", store))
 
+	router.LoadHTMLFiles("public/index.html")
+
 	router.Use(cors.New(cors.Config{
 		AllowOrigins:     []string{"http://localhost:3000", "http://localhost:3001"},
 		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE"},
@@ -54,6 +56,10 @@ func main() {
 		c.IndentedJSON(http.StatusOK, gin.H{
 			"message": "pong",
 		})
+	})
+
+	router.GET("/api/docs", func(c *gin.Context) {
+		c.HTML(http.StatusOK, "index.html", gin.H{})
 	})
 
 	router.GET("/user/:id/posts", userPosts)
