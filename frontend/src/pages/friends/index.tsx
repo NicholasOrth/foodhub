@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import Navbar from "../../../components/Navbar";
+import FollowerDisplay from "../../../components/FeedDisplay";
 
 export default function FriendsPage() {
   const [followers, setFollowers] = useState([]);
@@ -26,9 +27,10 @@ export default function FriendsPage() {
       <h1>Friends</h1>
       <ul>
         {/* Render the list of followers using JSX */}
-        {followers.map((follower) => (
+        {/*followers.map((follower) => (
           <li key={follower.id}>{follower.name}</li>
-        ))}
+        ))*/}
+        {followers && <FollowerDisplay posts={followers} />}
       </ul>
     </>
   );
