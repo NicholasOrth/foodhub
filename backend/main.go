@@ -68,11 +68,13 @@ func main() {
 	router.POST("/auth/signup", signup)
 	router.POST("/auth/logout", logout)
 	router.GET("/post/info/:id", postInfo)
+	router.GET("/user/search/:query", userSearch)
 
 	protected := router.Group("/")
 	protected.Use(Authentication())
 	protected.POST("/user/:id/follow", followUser)
 	protected.POST("/user/:id/following", userFollowing)
+
 	protected.GET("/feed", feed)
 	protected.POST("/post/create", createPost)
 	protected.POST("/post/delete/:id", deletePost)

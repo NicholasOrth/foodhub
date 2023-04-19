@@ -511,3 +511,23 @@ func feed(c *gin.Context) {
 		"posts": posts,
 	})
 }
+
+func userSearch(c *gin.Context) {
+	username := c.Param("query")
+
+	var users []User
+	err := db.Where("name LIKE ?", "%"+username+"%").Find(&users).Error
+	if err != nil {
+		c.AbortWithStatus(http.StatusInternalServerError)
+		return
+	}
+
+	var ids []uint
+	for _, user := range users {
+		ids = append(ids, user.ID)
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"users": ids,
+	})
+}
