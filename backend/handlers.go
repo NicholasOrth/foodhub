@@ -88,6 +88,7 @@ func userPosts(c *gin.Context) {
 		"posts": posts,
 	})
 }
+
 func userInfo(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
 
@@ -117,11 +118,19 @@ func userInfo(c *gin.Context) {
 		return
 	}
 
+	var posts []Post
+	err = db.Model(&user).Association("Posts").Find(&posts)
+	if err != nil {
+		c.AbortWithStatus(http.StatusInternalServerError)
+		return
+	}
+
 	c.JSON(http.StatusOK, gin.H{
 		"id":        user.ID,
 		"name":      user.Name,
 		"followers": len(followers),
 		"following": len(following),
+		"posts":     len(posts),
 	})
 }
 
