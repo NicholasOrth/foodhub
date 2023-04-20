@@ -84,6 +84,8 @@ describe('Sign Up', () => {
 
 
   it('should match password', () => {
+    cy.visit('/auth/signup')
+
     // Fill out the login form
     cy.get("#name").type('myName')
     cy.get("#email").type('myemail@email.com')
