@@ -17,7 +17,7 @@ WORK COMPLETED:
       Fixed post sizing issue.
       Standarized post formating so that heart and image size stays the same.
       Added file type checks to only accept jpg. -- solves "cannot load" error. \
-      Users now have to ass comments on their post before psoting.
+      Users now have to add comments on their post before psoting.
       Profile card: 
          shows user's name 
          follower count
