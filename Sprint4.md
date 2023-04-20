@@ -16,11 +16,13 @@ WORK COMPLETED:
       Added check to make sure that email is vaild when creating an account. 
       Fixed post sizing issue.
       Standarized post formating so that heart and image size stays the same.
-      Added file type checks to only accept jpg. -- solves "cannot load" error. \
+      Added file type checks to only accept jpg. -- solves "cannot load" error.
       Users now have to add comments on their post before psoting.
       Profile card: 
          shows user's name 
          follower count
          following count
+      Allows the user to search for other followers
+      Autofills follower search for users with matching tag
       
       
