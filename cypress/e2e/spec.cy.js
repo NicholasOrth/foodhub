@@ -47,15 +47,16 @@ describe('Signup page, already have acct button click', () => {
     cy.contains('Already have an account?').click()
   })
 })
+
 describe('Login and Logout', () => {
-  beforeEach(() => {
-    cy.visit('/login')
-  })
 
   it('should log in and log out successfully', () => {
+    cy.visit('/auth/signup')
+
     // Fill out the login form
-    cy.get('input[name="username"]').type('myusername')
-    cy.get('input[name="password"]').type('mypassword')
+
+    cy.get("#username").type('myusername')
+    cy.get("#password").type('mypassword')
     cy.get('button[type="submit"]').click()
 
     // Check if the user is redirected to the home page after login
@@ -64,89 +65,81 @@ describe('Login and Logout', () => {
 })
 
 describe('Sign Up', () => {
-  beforeEach(() => {
-    cy.visit('/signup')
-  })
-
   it('should require email', () => {
+      
+    cy.visit('/auth/signup')
+
     // Fill out the login form
-    cy.get('input[name="name"]').type('myName')
-    cy.get('input[email="email"]').type('myemail')
-    cy.get('input[password="password"]').type('matchingPassword1')
-    cy.get('input[confirm="password"]').type('matchingPassword1')
+    cy.get("#name").type('myName')
+    cy.get("#email").type('myemail')
+    cy.get("#password").type('matchingPassword1')
+    cy.get("#confirm").type('matchingPassword1')
     cy.get('button[type="submit"]').click()
 
-    cy.url().should('include', '/signup')
+    cy.url().should('include', '/auth/signup')
   })
 })
 
 describe('Sign Up', () => {
-  beforeEach(() => {
-    cy.visit('/signup')
-  })
+
 
   it('should match password', () => {
     // Fill out the login form
-    cy.get('input[name="name"]').type('myName')
-    cy.get('input[email="email"]').type('myemail@email.com')
-    cy.get('input[password="password"]').type('matchingPassword1')
-    cy.get('input[confirm="password"]').type('notMatchingPassword1')
+    cy.get("#name").type('myName')
+    cy.get("#email").type('myemail@email.com')
+    cy.get("#password").type('matchingPassword1')
+    cy.get("#confirm").type('notMatchingPassword1')
     cy.get('button[type="submit"]').click()
 
-    cy.url().should('include', '/signup')
+    cy.url().should('include', '/auth/signup')
   })
 })
 
 
 describe('Sign Up', () => {
-  beforeEach(() => {
-    cy.visit('/signup')
-  })
-
   it('password contains 8 character', () => {
+    cy.visit('/auth/signup')
+
     // Fill out the login form
-    cy.get('input[name="name"]').type('myName')
-    cy.get('input[email="email"]').type('myemail@email.com')
-    cy.get('input[password="password"]').type('shortP1')
-    cy.get('input[confirm="password"]').type('shortP1')
+    cy.get("#email").type('myName')
+    cy.get("#email").type('myemail@email.com')
+    cy.get("#password").type('shortP1')
+    cy.get("#password").type('shortP1')
     cy.get('button[type="submit"]').click()
 
-    cy.url().should('include', '/signup')
+    cy.url().should('include', '/auth/signup')
   })
 })
 
 describe('Sign Up', () => {
-  beforeEach(() => {
-    cy.visit('/signup')
-  })
 
   it('password contains upper', () => {
+    cy.visit('/auth/signup')
+
     // Fill out the login form
-    cy.get('input[name="name"]').type('myName')
-    cy.get('input[email="email"]').type('myemail@email.com')
-    cy.get('input[password="password"]').type('lowercasepassword1')
-    cy.get('input[confirm="password"]').type('lowercasepassword1')
+    cy.get("#name").type('myName')
+    cy.get("#email").type('myemail@email.com')
+    cy.get("#password").type('lowercasepassword1')
+    cy.get("#confirm").type('lowercasepassword1')
     cy.get('button[type="submit"]').click()
 
-    cy.url().should('include', '/signup')
+    cy.url().should('include', '/auth/signup')
   })
 })
 
 describe('Sign Up', () => {
-  beforeEach(() => {
-    cy.visit('/signup')
-  })
-
   it('can sign up and log in', () => {
+    cy.visit('/auth/signup')
+
     // Fill out the login form
-    cy.get('input[name="name"]').type('myName')
-    cy.get('input[email="email"]').type('myemail@email.com')
-    cy.get('input[password="password"]').type('correctPassword1')
-    cy.get('input[confirm="password"]').type('correctPassword1')
+    cy.get("#name").type('myName')
+    cy.get("#email").type('myemail@email.com')
+    cy.get("#password").type('correctPassword1')
+    cy.get("#password").type('correctPassword1')
     cy.get('button[type="submit"]').click()
 
-    cy.get('input[name="username"]').type('myemail@email.com')
-    cy.get('input[name="password"]').type('correctPassword1')
+    cy.get("#username").type('myemail@email.com')
+    cy.get("#passsword").type('correctPassword1')
     cy.get('button[type="submit"]').click()
 
     // Check if the user is redirected to the home page after login
