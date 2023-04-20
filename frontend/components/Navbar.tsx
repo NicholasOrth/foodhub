@@ -4,7 +4,8 @@ import styles from "../src/styles/Navbar.module.css"
 const links: {name: string, href: string}[] = [
     {name: "PROFILE", href: "/profile"},
     {name: "FEED", href: "/feed"},
-    {name: "NEW", href: "/new"}
+    {name: "NEW", href: "/new"},
+    {name: "FRIENDS", href: "/friends"}
 ]
 
 export default function Navbar() {
