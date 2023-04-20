@@ -48,22 +48,6 @@ describe('Signup page, already have acct button click', () => {
   })
 })
 
-describe('Login and Logout', () => {
-
-  it('should log in and log out successfully', () => {
-    cy.visit('/auth/signup')
-
-    // Fill out the login form
-
-    cy.get("#username").type('myusername')
-    cy.get("#password").type('mypassword')
-    cy.get('button[type="submit"]').click()
-
-    // Check if the user is redirected to the home page after login
-    cy.url().should('include', '/home')
-  })
-})
-
 describe('Sign Up', () => {
   it('should require email', () => {
       
@@ -103,10 +87,10 @@ describe('Sign Up', () => {
     cy.visit('/auth/signup')
 
     // Fill out the login form
-    cy.get("#email").type('myName')
+    cy.get("#name").type('myName')
     cy.get("#email").type('myemail@email.com')
     cy.get("#password").type('shortP1')
-    cy.get("#password").type('shortP1')
+    cy.get("#confirm").type('shortP1')
     cy.get('button[type="submit"]').click()
 
     cy.url().should('include', '/auth/signup')
@@ -137,14 +121,29 @@ describe('Sign Up', () => {
     cy.get("#name").type('myName')
     cy.get("#email").type('myemail@email.com')
     cy.get("#password").type('correctPassword1')
-    cy.get("#password").type('correctPassword1')
+    cy.get("#confirm").type('correctPassword1')
     cy.get('button[type="submit"]').click()
 
-    cy.get("#username").type('myemail@email.com')
+    cy.get("#email").type('myemail@email.com')
     cy.get("#passsword").type('correctPassword1')
     cy.get('button[type="submit"]').click()
 
     // Check if the user is redirected to the home page after login
-    cy.url().should('include', '/home')
+    cy.url().should('include', '/feed')
+  })
+})
+
+describe('Login and Logout', () => {
+  it('should log in and log out successfully', () => {
+    cy.visit('/auth/login')
+
+    // Fill out the login form
+
+    cy.get("#email").type('myemail@email.com')
+    cy.get("#password").type('correctPassword1')
+    cy.get('button[type="submit"]').click()
+
+    // Check if the user is redirected to the home page after login
+    cy.url().should('include', '/feed')
   })
 })
