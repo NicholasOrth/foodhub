@@ -158,6 +158,17 @@ func followUser(c *gin.Context) {
 		return
 	}
 
+	// check if user is already following
+	var existingFollow Follow
+	res = db.Where("user_id = ? AND follower_id = ?", id, user.ID).First(&existingFollow)
+
+	if res.Error == nil {
+		c.JSON(http.StatusOK, gin.H{
+			"message": "unfollowed user",
+		})
+		return
+	}
+
 	var userToFollow User
 	res = db.First(&userToFollow, id)
 	if res.Error != nil {
