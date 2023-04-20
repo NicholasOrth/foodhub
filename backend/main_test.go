@@ -1,68 +1,29 @@
-package test
+package main
 
 import (
-	"backend/src"
 	"bytes"
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 
-	"github.com/gin-gonic/gin"
-	"github.com/golang-jwt/jwt"
 	"golang.org/x/crypto/bcrypt"
-	"gorm.io/driver/sqlite"
-	"gorm.io/gorm"
 )
 
 // test the hash function
 func TestHashStr(t *testing.T) {
 	passwordTest := "TestPassword11@@"
-	hashed := main.HashStr(passwordTest)
+	hashed := HashStr(passwordTest)
 	err := bcrypt.CompareHashAndPassword([]byte(hashed), []byte(passwordTest))
 	if err != nil {
 		t.Errorf("Hashed password does not match")
 	}
 }
 
-// Test for contains function
-// func TestContains(t *testing.T) {
-// 	slice := []uint{1, 2, 3, 4, 5}
-// 	val := uint(3)
-// 	if !Contains(slice, val) {
-// 		t.Errorf("Contains function does not work")
-// 	}
-// }
-
-// func TestRemoveFromSlice(t *testing.T) {
-// 	slice := []uint{1, 2, 3, 4, 5}
-// 	val := uint(3)
-// 	slice = RemoveFromSlice(slice, val)
-// 	if Contains(slice, val) {
-// 		t.Errorf("RemoveFromSlice function does not work")
-// 	}
-// }
-
-// test for block and unblock user function
-// func TestBlockUser(t *testing.T) {
-// 	user := User{}
-// 	targetID := uint(1)
-// 	user.Blocked = BlockUser(user, targetID)
-// 	if !Contains(user.Blocked, targetID) {
-// 		t.Errorf("BlockUser function does not work")
-// 	}
-
-// 	user.Blocked = BlockUser(user, targetID)
-// 	BlockUser(user, targetID)
-// 	if Contains(user.Blocked, targetID) {
-// 		t.Errorf("BlockUser function does not work")
-// 	}
-// }
-
 // handeler for testing GET request
 func getUsersHandler(w http.ResponseWriter, r *http.Request) {
 	// retrieve list of users from database
-	users := []main.User{{Name: "Nick"}, {Name: "Larry"}}
+	users := []User{{Name: "Nick"}, {Name: "Larry"}}
 
 	// encode users as JSON and write to response
 	json.NewEncoder(w).Encode(users)
@@ -83,7 +44,7 @@ func TestGetUsers(t *testing.T) {
 	defer resp.Body.Close()
 
 	// decode response JSON into slice of User objects
-	var users []main.User
+	var users []User
 	err = json.NewDecoder(resp.Body).Decode(&users)
 	if err != nil {
 		t.Fatalf("Error decoding response JSON: %v", err)
@@ -101,12 +62,12 @@ func TestGetUsers(t *testing.T) {
 	}
 }
 
-var users []main.User
+var users []User
 
 // handeler for testing POST request
 func createUserHandler(w http.ResponseWriter, r *http.Request) {
 	// decode JSON request body into User object
-	var user main.User
+	var user User
 	err := json.NewDecoder(r.Body).Decode(&user)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
@@ -128,7 +89,7 @@ func TestCreateUser(t *testing.T) {
 	defer server.Close()
 
 	// create new user object
-	newUser := main.User{Name: "Charlie"}
+	newUser := User{Name: "Charlie"}
 
 	// encode user as JSON
 	requestBody, err := json.Marshal(newUser)
@@ -149,54 +110,56 @@ func TestCreateUser(t *testing.T) {
 	}
 
 	// decode response JSON into User object
-	var createdUser main.User
+	var createdUser User
 	err = json.NewDecoder(resp.Body).Decode(&createdUser)
 	if err != nil {
 		t.Fatalf("Error decoding response JSON: %v", err)
 	}
 
 	// verify that the created user matches the expected user
-	expectedUser := main.User{Name: "Nick"}
+	expectedUser := User{Name: "Nick"}
 	if createdUser.ID != expectedUser.ID {
 		t.Fatalf("Expected created user to be %+v, but got %+v", expectedUser.ID, createdUser.ID)
 	}
 }
-func TestAuthUser(t *testing.T) {
-	// initialize Gin router and database
-	//r := gin.Default()
-	db, err := gorm.Open(sqlite.Open("test.sqlite"), &gorm.Config{})
 
-	// add test user to database
-	user := main.User{
-		Name: "Nick",
-	}
-	db.Create(&user)
+func TestCreatePost(t *testing.T) {
+	// create test server with createUserHandler as handler for /users endpoint
+	server := httptest.NewServer(http.HandlerFunc(createUserHandler))
+	defer server.Close()
 
-	// set up test context with JWT cookie
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, main.Claims{
-		ID: user.ID,
-	})
-	jwtCookie, _ := token.SignedString(main.JwtKey)
-	req, _ := http.NewRequest("GET", "/", nil)
-	req.AddCookie(&http.Cookie{Name: "jwt", Value: jwtCookie})
-	w := httptest.NewRecorder()
-	c, _ := gin.CreateTestContext(w)
-	c.Request = req
+	// create new user object
+	newUser := User{Name: "Nick"}
+	newPost := Post{UserID: newUser.ID, Caption: "Hello World"}
 
-	// call AuthUser function with test context and database
-	authUser, claims, err := main.AuthUser(c, db)
-
+	// encode user as JSON
+	requestBody, err := json.Marshal(newPost)
 	if err != nil {
-		//t.Fatalf("Error authenticating user: %v", err)
+		t.Fatalf("Error encoding request JSON: %v", err)
 	}
 
-	// check for correct user informationif user.ID != authUser.ID {
-	if user.ID != authUser.ID {
-		t.Fatalf("User ID incorrect")
+	// make POST request to /users endpoint with JSON request body
+	resp, err := http.Post(server.URL+"/post/create", "application/json", bytes.NewBuffer(requestBody))
+	if err != nil {
+		t.Fatalf("Error making POST request: %v", err)
+	}
+	defer resp.Body.Close()
+
+	// verify that the response status code is 201 Created
+	if resp.StatusCode != http.StatusCreated {
+		t.Fatalf("Expected status code 201 Created, but got %v", resp.StatusCode)
 	}
 
-	// check for correct claims information
-	if user.ID != claims.ID {
-		t.Fatalf("Claims ID incorrect")
+	// decode response JSON into User object
+	var createdPost Post
+	err = json.NewDecoder(resp.Body).Decode(&createdPost)
+	if err != nil {
+		t.Fatalf("Error decoding response JSON: %v", err)
+	}
+
+	// verify that the created user matches the expected user
+	expectedPost := Post{}
+	if createdPost.ID != expectedPost.ID {
+		t.Fatalf("Expected created user to be %+v, but got %+v", expectedPost.ID, createdPost.ID)
 	}
 }

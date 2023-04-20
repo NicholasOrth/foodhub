@@ -171,6 +171,43 @@ func followUser(c *gin.Context) {
 		"message": "followed user",
 	})
 }
+func userFollowing(c *gin.Context) {
+	id, err := strconv.Atoi(c.Param("id"))
+
+	if err != nil {
+		c.AbortWithStatus(http.StatusBadRequest)
+		return
+	}
+
+	var user User
+	res := db.First(&user, id)
+	if res.Error != nil {
+		c.AbortWithStatus(http.StatusNotFound)
+		return
+	}
+
+	var following []Follow
+	err = db.Where("follower_id = ?", user.ID).Find(&following).Error
+	if err != nil {
+		c.AbortWithStatus(http.StatusInternalServerError)
+		return
+	}
+
+	var followingUsers []User
+	for _, f := range following {
+		var user User
+		res = db.First(&user, f.UserID)
+		if res.Error != nil {
+			c.AbortWithStatus(http.StatusNotFound)
+			return
+		}
+		followingUsers = append(followingUsers, user)
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"following": followingUsers,
+	})
+}
 
 /* Auth Routes */
 func login(c *gin.Context) {
@@ -237,7 +274,13 @@ func signup(c *gin.Context) {
 		return
 	}
 
-	res := db.Create(&User{
+	res := db.Where("email = ?", user.Email).First(&user)
+	if res.Error == nil {
+		c.AbortWithStatus(http.StatusConflict)
+		return
+	}
+
+	res = db.Create(&User{
 		Name:     user.Name,
 		Email:    user.Email,
 		Password: HashStr(user.Password),
@@ -466,5 +509,25 @@ func feed(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{
 		"posts": posts,
+	})
+}
+
+func userSearch(c *gin.Context) {
+	username := c.Param("query")
+
+	var users []User
+	err := db.Where("name LIKE ?", "%"+username+"%").Find(&users).Error
+	if err != nil {
+		c.AbortWithStatus(http.StatusInternalServerError)
+		return
+	}
+
+	var ids []uint
+	for _, user := range users {
+		ids = append(ids, user.ID)
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"users": ids,
 	})
 }

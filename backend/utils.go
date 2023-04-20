@@ -1,12 +1,8 @@
 package main
 
 import (
-	"github.com/gin-gonic/gin"
-	"github.com/golang-jwt/jwt"
 	"golang.org/x/crypto/bcrypt"
-	"gorm.io/gorm"
 	"log"
-	"net/http"
 )
 
 /*func AddFollower(user User, target User) {
@@ -35,7 +31,7 @@ func HashStr(data string) string {
 	return string(hashedData)
 }
 
-func AuthUser(c *gin.Context, db *gorm.DB) (User, Claims, error) {
+/*func AuthUser(c *gin.Context, db *gorm.DB) (User, Claims, error) {
 	cookie, err := c.Cookie("jwt")
 	if err != nil {
 		log.Println("No cookie found.")
@@ -66,7 +62,7 @@ func AuthUser(c *gin.Context, db *gorm.DB) (User, Claims, error) {
 	}
 
 	return user, *claims, nil
-}
+}*/
 
 func Contains(slice []uint, val uint) bool {
 	for _, item := range slice {
