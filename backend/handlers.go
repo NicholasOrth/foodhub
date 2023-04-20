@@ -88,6 +88,7 @@ func userPosts(c *gin.Context) {
 		"posts": posts,
 	})
 }
+
 func userInfo(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
 
@@ -117,11 +118,19 @@ func userInfo(c *gin.Context) {
 		return
 	}
 
+	var posts []Post
+	err = db.Model(&user).Association("Posts").Find(&posts)
+	if err != nil {
+		c.AbortWithStatus(http.StatusInternalServerError)
+		return
+	}
+
 	c.JSON(http.StatusOK, gin.H{
 		"id":        user.ID,
 		"name":      user.Name,
 		"followers": len(followers),
 		"following": len(following),
+		"posts":     len(posts),
 	})
 }
 
@@ -146,6 +155,17 @@ func followUser(c *gin.Context) {
 
 	if err != nil {
 		c.AbortWithStatus(http.StatusBadRequest)
+		return
+	}
+
+	// check if user is already following
+	var existingFollow Follow
+	res = db.Where("user_id = ? AND follower_id = ?", id, user.ID).First(&existingFollow)
+
+	if res.Error == nil {
+		c.JSON(http.StatusOK, gin.H{
+			"message": "unfollowed user",
+		})
 		return
 	}
 
